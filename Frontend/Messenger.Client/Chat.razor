@@ -1,0 +1,101 @@
+﻿@page "/"
+@using MudBlazor
+@inject IMessageService MessageService
+@inject ISnackbar Snackbar
+
+<PageTitle>Chat</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+    <MudPaper Elevation="3" Class="pa-4">
+        <MudText Typo="Typo.h4" Class="mb-4">Anonymous Chat</MudText>
+
+        <MudDivider Class="mb-4" />
+
+        <MudPaper Elevation="1" Class="pa-4 mb-4" Style="height: 400px; overflow-y: auto;">
+            @if (messages == null)
+            {
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+            }
+            else if (!messages.Any())
+            {
+                <MudText Typo="Typo.body1" Color="Color.Secondary">No messages yet. Be the first to say something!</MudText>
+            }
+            else
+            {
+                <MudStack Spacing="2">
+                    @foreach (var message in messages)
+                    {
+                        <MudPaper Elevation="1" Class="pa-3">
+                            <MudText Typo="Typo.body1">@message.Content</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                @message.CreatedOnUtc.ToLocalTime().ToString("HH:mm:ss")
+                            </MudText>
+                        </MudPaper>
+                    }
+                </MudStack>
+            }
+        </MudPaper>
+
+        <MudStack Row="true" Spacing="2">
+            <MudTextField @bind-Value="newMessage"
+                          Label="Type your message"
+                          Variant="Variant.Outlined"
+                          FullWidth="true"
+                          OnKeyDown="HandleKeyDown" />
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="SendMessage"
+                       Disabled="string.IsNullOrWhiteSpace(newMessage)">
+                Send
+            </MudButton>
+        </MudStack>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private List<MessageDto>? messages;
+    private string newMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMessages();
+    }
+
+    private async Task LoadMessages()
+    {
+        try
+        {
+            messages = await MessageService.GetMessagesAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to load messages: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(newMessage))
+            return;
+
+        try
+        {
+            await MessageService.SendMessageAsync(newMessage);
+            newMessage = string.Empty;
+            await LoadMessages();
+            Snackbar.Add("Message sent!", Severity.Success);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to send message: {ex.Message}", Severity.Error);
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(newMessage))
+        {
+            await SendMessage();
+        }
+    }
+}
