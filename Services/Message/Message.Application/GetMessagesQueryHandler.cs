@@ -6,9 +6,7 @@ namespace Message.Message.Application;
 internal sealed class GetMessagesQueryHandler(IChatMessageRepository messageRepository)
     : IRequestHandler<GetMessagesQuery, IReadOnlyList<MessageResponse>>
 {
-    public async Task<IReadOnlyList<MessageResponse>> Handle(
-        GetMessagesQuery request,
-        CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<MessageResponse>> Handle(GetMessagesQuery request, CancellationToken cancellationToken)
     {
         var messages = await messageRepository.GetAllAsync(cancellationToken);
 

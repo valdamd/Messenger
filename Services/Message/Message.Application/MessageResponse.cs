@@ -1,6 +1,6 @@
 ﻿namespace Message.Message.Application;
 
-public class MessageResponse
+public sealed class MessageResponse
 {
     public Guid Id { get; init; }
 

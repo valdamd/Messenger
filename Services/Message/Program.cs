@@ -8,7 +8,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddMediatR(configuration =>
 {
-    configuration.RegisterServicesFromAssembly(typeof(Message.Application.AssemblyReference).Assembly);
+    configuration.RegisterServicesFromAssembly(typeof(Message.Message.Application.GetMessagesQuery).Assembly);
 });
 
 builder.Services.AddInfrastructure(builder.Configuration);

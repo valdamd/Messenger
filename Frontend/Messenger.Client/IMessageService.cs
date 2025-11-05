@@ -2,7 +2,7 @@
 
 public interface IMessageService
 {
-    Task<List<MessageDto>> GetMessagesAsync();
+    Task<IReadOnlyList<MessageDto>> GetMessagesAsync();
 
     Task SendMessageAsync(string content);
 }

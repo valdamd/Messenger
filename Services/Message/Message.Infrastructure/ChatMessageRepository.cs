@@ -3,18 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Message.Message.Infrastructure;
 
-internal sealed class ChatMessageRepository : IChatMessageRepository
+internal sealed class ChatMessageRepository(ApplicationDbContext dbContext) : IChatMessageRepository
 {
-    private readonly ApplicationDbContext _dbContext;
-
-    public ChatMessageRepository(ApplicationDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
-
     public async Task<IReadOnlyList<ChatMessage>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _dbContext
+        return await dbContext
             .Messages
             .OrderBy(m => m.CreatedOnUtc)
             .ToListAsync(cancellationToken);
@@ -22,6 +15,6 @@ internal sealed class ChatMessageRepository : IChatMessageRepository
 
     public void Add(ChatMessage message)
     {
-        _dbContext.Messages.Add(message);
+        dbContext.Messages.Add(message);
     }
 }

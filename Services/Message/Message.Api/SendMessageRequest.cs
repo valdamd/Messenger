@@ -1,3 +1,6 @@
 ﻿namespace Message.Message.Api;
 
-public sealed record SendMessageRequest(string Content);
+public sealed class SendMessageRequest
+{
+    public string Content { get; set; } = string.Empty;
+}

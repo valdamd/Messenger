@@ -6,7 +6,7 @@ namespace Message.Message.Api;
 
 [ApiController]
 [Route("api/[controller]")]
-public class MessagesController(ISender sender) : ControllerBase
+public sealed class MessagesController(ISender sender) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetMessages(CancellationToken cancellationToken)

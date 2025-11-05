@@ -2,4 +2,4 @@
 
 namespace Message.Message.Application;
 
-public abstract sealed record SendMessageCommand(string Content) : IRequest<Guid>;
+public sealed record SendMessageCommand(string Content) : IRequest<Guid>;

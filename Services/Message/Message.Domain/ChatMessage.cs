@@ -1,6 +1,6 @@
 ﻿namespace Message.Message.Domain;
 
-public class ChatMessage(Guid id, string content, DateTime createdOnUtc)
+public sealed class ChatMessage(Guid id, string content, DateTime createdOnUtc)
 {
     public Guid Id { get; private set; } = id;
 

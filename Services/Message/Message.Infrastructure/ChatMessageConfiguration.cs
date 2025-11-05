@@ -8,8 +8,6 @@ internal sealed class ChatMessageConfiguration : IEntityTypeConfiguration<ChatMe
 {
     public void Configure(EntityTypeBuilder<ChatMessage> builder)
     {
-        builder.ToTable("messages");
-
         builder.HasKey(message => message.Id);
 
         builder.Property(message => message.Content)

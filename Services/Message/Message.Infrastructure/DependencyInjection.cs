@@ -9,11 +9,8 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("Database") ??
-                                  throw new ArgumentNullException(nameof(configuration));
-
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlite(connectionString));
+            options.UseInMemoryDatabase("MessengerDb"));
 
         services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
 

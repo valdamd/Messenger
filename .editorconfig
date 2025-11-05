@@ -272,7 +272,7 @@ dotnet_diagnostic.RCS0060.severity = warning
 roslynator_blank_line_after_file_scoped_namespace_declaration = true
 
 # RCS1046: Asynchronous method name should end with 'Async'
-dotnet_diagnostic.RCS1046.severity = warning
+dotnet_diagnostic.RCS1046.severity = none
 
 # RCS1018: Add accessibility modifiers (or vice versa).
 dotnet_diagnostic.RCS1018.severity = warning

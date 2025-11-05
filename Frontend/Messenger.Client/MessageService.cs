@@ -4,10 +4,15 @@ namespace Messenger.Client;
 
 public sealed class MessageService(HttpClient httpClient) : IMessageService
 {
-    public async Task<List<MessageDto>> GetMessagesAsync()
+    public async Task<IReadOnlyList<MessageDto>> GetMessagesAsync()
     {
-        var messages = await httpClient.GetFromJsonAsync<List<MessageDto>>("api/messages");
-        return messages ?? new List<MessageDto>();
+        var messages = await httpClient.GetFromJsonAsync<List<MessageDto>?>("api/messages");
+        if (messages is null || messages.Count == 0)
+        {
+            return Array.Empty<MessageDto>();
+        }
+
+        return messages.AsReadOnly();
     }
 
     public async Task SendMessageAsync(string content)
