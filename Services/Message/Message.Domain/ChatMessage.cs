@@ -1,15 +1,15 @@
 ﻿namespace Message.Message.Domain;
 
-public sealed class ChatMessage(Guid id, string content, DateTime createdOnUtc)
+public sealed class ChatMessage(Guid id, string content, DateTimeOffset createdAt)
 {
     public Guid Id { get; private set; } = id;
 
     public string Content { get; private set; } = content;
 
-    public DateTime CreatedOnUtc { get; private set; } = createdOnUtc;
+    public DateTimeOffset CreatedAt { get; private set; } = createdAt;
 
-    public static ChatMessage Create(string content, DateTime createdOnUtc)
+    public static ChatMessage Create(string content, DateTimeOffset createdAt)
     {
-        return new ChatMessage(Guid.NewGuid(), content, createdOnUtc);
+        return new ChatMessage(Guid.NewGuid(), content, createdAt);
     }
 }

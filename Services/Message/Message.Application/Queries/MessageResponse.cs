@@ -6,5 +6,5 @@ public sealed class MessageResponse
 
     public string? Content { get; init; }
 
-    public DateTime CreatedOnUtc { get; init; }
+    public DateTimeOffset CreatedAt { get; init; }
 }

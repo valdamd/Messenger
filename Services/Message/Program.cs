@@ -32,7 +32,7 @@ if (app.Environment.IsDevelopment())
 
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.EnsureCreated();
+    await dbContext.Database.EnsureCreatedAsync();
 }
 
 app.UseCors();
@@ -43,4 +43,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

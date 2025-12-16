@@ -15,7 +15,7 @@ internal sealed class GetMessagesQueryHandler(IChatMessageRepository messageRepo
             {
                 Id = m.Id,
                 Content = m.Content,
-                CreatedOnUtc = m.CreatedOnUtc,
+                CreatedAt = m.CreatedAt,
             })
             .ToList();
     }
