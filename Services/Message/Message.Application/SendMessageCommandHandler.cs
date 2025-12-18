@@ -9,7 +9,7 @@ internal sealed class SendMessageCommandHandler(
 {
     public async Task<Guid> Handle(SendMessageCommand request, CancellationToken cancellationToken)
     {
-        var message = ChatMessage.Create(request.Content, DateTime.UtcNow);
+        var message = ChatMessage.Create(request.Content, DateTimeOffset.UtcNow);
 
         messageRepository.Add(message);
 

@@ -1,28 +1,52 @@
-using Pingo.Messages.Repositories;
+using Message.Api.Extensions;
+using Message.Api.Middleware;
+using Message.Message.Application;
+using Message.Message.Infrastructure;
+using Message.Message.Infrastructure.Database;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connection = builder.Configuration.GetConnectionString("DefaultConnection")
-                 ?? builder.Configuration["ConnectionStrings:DefaultConnection"]
-                 ?? "Host=localhost;Port=5432;Database=messenger_db;Username=postgres;Password=example";
+builder.Host.UseSerilog((ctx, config) => config.ReadFrom.Configuration(ctx.Configuration));
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddControllers();
-
-builder.Services.AddDbContext<MessagesDbContext>(opt => opt.UseNpgsql(connection));
-
-//builder.Services.AddScoped<IMessageRepository, MessageRepository>();
-builder.Services.AddScoped<IMessageService, MessageService>();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddMediatR(cfg =>
+    cfg.RegisterServicesFromAssembly(typeof(Message.Message.Application.AssemblyReference).Assembly));
+
+var databaseConnectionString = builder.Configuration.GetConnectionString("Database")!;
+
+builder.Services.AddInfrastructure(databaseConnectionString);
+
+builder.Configuration.AddModuleConfiguration(["messages"]);
+
+builder.Services.AddHealthChecks()
+    .AddNpgSql(databaseConnectionString);
+
 var app = builder.Build();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.ApplyMigrations();
 }
 
 app.MapControllers();
 
-app.Run();
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+});
+
+app.UseSerilogRequestLogging();
+app.UseExceptionHandler();
+
+await app.RunAsync();

@@ -14,7 +14,10 @@ internal sealed class ChatMessageConfiguration : IEntityTypeConfiguration<ChatMe
             .IsRequired()
             .HasMaxLength(2000);
 
-        builder.Property(message => message.CreatedOnUtc)
+        builder.Property(message => message.CreatedAt)
             .IsRequired();
+
+        builder.Property(message => message.UpdatedAt)
+            .IsRequired(false);
     }
 }

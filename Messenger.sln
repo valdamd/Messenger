@@ -12,11 +12,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Message.Domain", "Services\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Message.Infrastructure", "Services\Message\Message.Infrastructure\Message.Infrastructure.csproj", "{B71DDDBF-A09F-4988-B0E9-D3B6F329B843}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pingo.Messeges.Infrastructure", "Messages\Pingo.Messages\Pingo.Messeges.Infrastructure\Pingo.Messeges.Infrastructure.csproj", "{0B61AB7F-7459-4FE6-B9D6-58C9ECF2393A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pingo.Messages.Infrastructure", "Messages\Pingo.Messages\Pingo.Messages.Infrastructure\Pingo.Messages.Infrastructure.csproj", "{0B61AB7F-7459-4FE6-B9D6-58C9ECF2393A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pingo.Messages.Application", "Messages\Pingo.Messages\Pingo.Messages.Application\Pingo.Messages.Application.csproj", "{CF21E5F3-C77C-4655-8430-6356DCCEC9DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pingo.Messeges.Domain", "Messages\Pingo.Messages\Pingo.Messeges.Domain\Pingo.Messeges.Domain.csproj", "{0AD829B8-66A1-44A0-9646-0713AC599E9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pingo.Messages.Domain", "Messages\Pingo.Messages\Pingo.Messages.Domain\Pingo.Messages.Domain.csproj", "{0AD829B8-66A1-44A0-9646-0713AC599E9C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pingo.Masseges.Presentation", "Messages\Pingo.Messages\Pingo.Masseges.Presentation\Pingo.Masseges.Presentation.csproj", "{076BFEA2-37F6-4D93-B4F8-8A1C796F4F86}"
 EndProject

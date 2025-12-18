@@ -1,10 +1,10 @@
-using Pingo.Messeges.Domain;
+using Pingo.Messages.Domain;
 
 namespace Pingo.Messages.Application;
 
 public interface IMessageRepository
 {
-    Task SaveAsync(Message message);
+    Task<Message?> GetAsync(Guid id, CancellationToken ct = default);
 
-    Task<Message?> GetAsync(Guid messageId);
+    Task SaveAsync(Message message, CancellationToken ct = default);
 }

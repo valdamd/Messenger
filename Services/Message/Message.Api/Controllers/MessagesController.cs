@@ -1,28 +1,35 @@
+using Messenger.Client;
 using Microsoft.AspNetCore.Mvc;
-using Pingo.Messages;
 
 namespace Message.Message.Api;
 
 [ApiController]
 [Route("api/[controller]")]
-public class MessagesController : ControllerBase
+public class MessagesController(IMessageService service) : ControllerBase
 {
-    private readonly IMessageService _service;
-
-    public MessagesController(IMessageService service) => _service = service;
-
     [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
+    public async Task<IActionResult> GetAll()
+    {
+        var messages = await service.GetAllAsync();
+        return Ok(messages);
+    }
 
     [HttpPut("{messageId:guid}")]
-    public async Task<IActionResult> SendOrUpdate([FromRoute] Guid messageId, [FromBody] SendMessageRequest request)
+    public async Task<IActionResult> SendOrUpdate(
+        [FromRoute] Guid messageId,
+        [FromBody] SendMessageRequest? request)
     {
-        if (string.IsNullOrWhiteSpace(request?.Text))
+        if (request == null)
         {
-            return BadRequest("Text is required.");
+            return BadRequest("Request body is required.");
         }
 
-        await _service.SendOrUpdateAsync(messageId, request.Text);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
+        await service.SendOrUpdateAsync(messageId, request.Content);
         return NoContent();
     }
 }

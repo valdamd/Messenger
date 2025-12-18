@@ -10,4 +10,10 @@
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Frontend\Messenger.Client\Messenger.Client.csproj" />
+      <ProjectReference Include="..\..\..\Messages\Pingo.Messages\Pingo.Masseges.Presentation\Pingo.Masseges.Presentation.csproj" />
+      <ProjectReference Include="..\..\..\Messages\Pingo.Messages\Pingo.Messages.Infrastructure\Pingo.Messages.Infrastructure.csproj" />
+    </ItemGroup>
+
 </Project>

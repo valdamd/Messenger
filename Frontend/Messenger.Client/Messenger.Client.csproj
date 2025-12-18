@@ -6,4 +6,8 @@
         <PackageReference Include="MudBlazor" Version="8.13.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\Services\Message\Message.Application\Message.Application.csproj" />
+    </ItemGroup>
+
 </Project>

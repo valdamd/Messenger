@@ -1,20 +1,31 @@
-using Pingo.Messeges.Domain;
+using Pingo.Messages.Domain;
 
 namespace Pingo.Messages.Application;
 
-internal sealed class MessageService(IMessageRepository repository)
+public sealed class MessageService(IMessageRepository repository)
 {
-    public async Task CreateOrUpdateMessageAsync(Guid id, string text)
+    public async Task<Result> CreateOrUpdateAsync(Guid id, string text, CancellationToken ct = default)
     {
-        var message = await repository.GetAsync(id) ?? new Message
+        if (string.IsNullOrWhiteSpace(text))
         {
-            Id = id,
-            CreatedAt = DateTimeOffset.UtcNow,
-        };
+            return Error.Problem("Message.Text.Empty", "Message text cannot be empty or whitespace.");
+        }
 
-        message.Text = text;
-        message.UpdatedAt = DateTimeOffset.UtcNow;
+        var message = await repository.GetAsync(id, ct) ?? Message.Create(id, text);
 
-        await repository.SaveAsync(message);
+        message.UpdateText(text);
+
+        await repository.SaveAsync(message, ct);
+
+        return Result.Success();
+    }
+
+    public async Task<Result<Message>> GetAsync(Guid id, CancellationToken ct = default)
+    {
+        var message = await repository.GetAsync(id, ct);
+
+        return message is null
+            ? Result<Message>.Failure(Error.NotFound("Message.NotFound", "Message not found"))
+            : Result<Message>.Success(message);
     }
 }
