@@ -1,31 +1,49 @@
+using Pingo.Message.Domain;
 using Pingo.Messages.Domain;
+using Pingo.Messages.Domain.Messages;
 
 namespace Pingo.Messages.Application;
 
-public sealed class MessageService(IMessageRepository repository)
+public sealed class MessageService(IChatMessageRepository messageRepository, IUnitOfWork unitOfWork) : IMessageService
 {
-    public async Task<Result> CreateOrUpdateAsync(Guid id, string text, CancellationToken ct = default)
+    public async Task CreateOrUpdateAsync(Guid messageId, string content, CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(text))
+        var existingMessage = await messageRepository.GetAsync(messageId, cancellationToken);
+
+        if (existingMessage is null)
         {
-            return Error.Problem("Message.Text.Empty", "Message text cannot be empty or whitespace.");
+            var newMessage = ChatMessage.Create(messageId, content);
+            messageRepository.Insert(newMessage);
+        }
+        else
+        {
+            existingMessage.UpdateContent(content);
+            messageRepository.Update(existingMessage);
         }
 
-        var message = await repository.GetAsync(id, ct) ?? Message.Create(id, text);
-
-        message.UpdateText(text);
-
-        await repository.SaveAsync(message, ct);
-
-        return Result.Success();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<Result<Message>> GetAsync(Guid id, CancellationToken ct = default)
+    public async Task<MessageResponse?> GetByIdAsync(Guid messageId, CancellationToken cancellationToken = default)
     {
-        var message = await repository.GetAsync(id, ct);
+        var message = await messageRepository.GetAsync(messageId, cancellationToken);
 
-        return message is null
-            ? Result<Message>.Failure(Error.NotFound("Message.NotFound", "Message not found"))
-            : Result<Message>.Success(message);
+        return message is null ? null : MapToResponse(message);
+    }
+
+    public async Task<IReadOnlyList<MessageResponse>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        var messages = await messageRepository.GetAllAsync(cancellationToken);
+
+        return messages.Select(MapToResponse).ToList();
+    }
+
+    private static MessageResponse MapToResponse(ChatMessage message)
+    {
+        return new MessageResponse(
+            message.Id,
+            message.Content,
+            message.CreatedAtUtc,
+            message.UpdatedAtUtc);
     }
 }

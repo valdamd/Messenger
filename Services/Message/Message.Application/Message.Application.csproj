@@ -3,9 +3,5 @@
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
     </PropertyGroup>
-  
-    <ItemGroup>
-      <ProjectReference Include="..\Message.Domain\Message.Domain.csproj" />
-    </ItemGroup>
 
 </Project>

@@ -1,0 +1,34 @@
+﻿namespace Pingo.Messages.Domain.Messages;
+
+public sealed class ChatMessage
+{
+    public Guid Id { get; private set; }
+
+    public string Content { get; private set; } = string.Empty;
+
+    public DateTime CreatedAtUtc { get; private set; }
+
+    public DateTime? UpdatedAtUtc { get; private set; }
+
+    public static ChatMessage Create(Guid id, string content)
+    {
+        return new ChatMessage
+        {
+            Id = id,
+            Content = content,
+            CreatedAtUtc = DateTime.UtcNow,
+            UpdatedAtUtc = null,
+        };
+    }
+
+    public void UpdateContent(string content)
+    {
+        if (Content == content)
+        {
+            return;
+        }
+
+        Content = content;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+}

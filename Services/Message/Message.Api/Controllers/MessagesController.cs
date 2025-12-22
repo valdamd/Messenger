@@ -1,35 +1,42 @@
-using Messenger.Client;
+using Message.Message.Api;
 using Microsoft.AspNetCore.Mvc;
+using Pingo.Messages.Application;
 
-namespace Message.Message.Api;
+namespace Message.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class MessagesController(IMessageService service) : ControllerBase
+public class MessagesController(IMessageService messageService) : ControllerBase
 {
-    [HttpGet]
-    public async Task<IActionResult> GetAll()
+    [HttpPut("{messageId:guid}")]
+    public async Task<IActionResult> CreateOrUpdate(
+        Guid messageId,
+        [FromBody] SendMessageRequest request,
+        CancellationToken cancellationToken)
     {
-        var messages = await service.GetAllAsync();
-        return Ok(messages);
+        await messageService.CreateOrUpdateAsync(messageId, request.Content, cancellationToken);
+
+        return NoContent();
     }
 
-    [HttpPut("{messageId:guid}")]
-    public async Task<IActionResult> SendOrUpdate(
-        [FromRoute] Guid messageId,
-        [FromBody] SendMessageRequest? request)
+    [HttpGet("{messageId:guid}")]
+    public async Task<IActionResult> GetById(Guid messageId, CancellationToken cancellationToken)
     {
-        if (request == null)
+        var message = await messageService.GetByIdAsync(messageId, cancellationToken);
+
+        if (message is null)
         {
-            return BadRequest("Request body is required.");
+            return NotFound();
         }
 
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        return Ok(message);
+    }
 
-        await service.SendOrUpdateAsync(messageId, request.Content);
-        return NoContent();
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    {
+        var messages = await messageService.GetAllAsync(cancellationToken);
+
+        return Ok(messages);
     }
 }

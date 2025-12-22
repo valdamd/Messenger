@@ -10,5 +10,9 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.1" />
       <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Messages\Pingo.Messages\Pingo.Messages.Application\Pingo.Messages.Application.csproj" />
+    </ItemGroup>
   
 </Project>

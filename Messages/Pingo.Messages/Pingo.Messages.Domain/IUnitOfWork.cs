@@ -1,4 +1,4 @@
-﻿namespace Message.Message.Domain;
+﻿namespace Pingo.Message.Domain;
 
 public interface IUnitOfWork
 {

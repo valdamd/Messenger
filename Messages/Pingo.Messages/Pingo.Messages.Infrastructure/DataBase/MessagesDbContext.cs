@@ -1,15 +1,18 @@
 using Microsoft.EntityFrameworkCore;
-using Pingo.Messages.Domain;
+using Pingo.Message.Domain;
+using Pingo.Messages.Domain.Messages;
+using Pingo.Messages.Infrastructure.Database;
 
-namespace Pingo.Messages.Infrastructure.DataBase;
+namespace Pingo.Messeges.Infrastructure.DataBase;
 
-public sealed class MessagesDbContext(DbContextOptions<MessagesDbContext> options) : DbContext(options)
+public sealed class MessagesDbContext(DbContextOptions<MessagesDbContext> options)
+    : DbContext(options), IUnitOfWork
 {
-    public DbSet<Message> Messages => Set<Message>();
+    internal DbSet<ChatMessage> Messages => Set<ChatMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.HasDefaultSchema("public");
+        modelBuilder.HasDefaultSchema(Schemas.Messages);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(MessagesDbContext).Assembly);
     }
 }
