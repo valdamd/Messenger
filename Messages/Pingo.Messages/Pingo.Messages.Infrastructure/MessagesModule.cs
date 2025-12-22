@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Pingo.Message.Domain;
 using Pingo.Messages.Application;
 using Pingo.Messages.Domain;
 using Pingo.Messages.Infrastructure.Database;

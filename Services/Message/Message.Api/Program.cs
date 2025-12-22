@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Pingo.Messages.Infrastructure;
-using Pingo.Messages.Infrastructure.Database;
 using Pingo.Messeges.Infrastructure.DataBase;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,7 +23,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Применяем миграции в Development
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

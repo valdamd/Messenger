@@ -1,4 +1,3 @@
-using Pingo.Message.Domain;
 using Pingo.Messages.Domain;
 
 namespace Pingo.Messages.Application;
