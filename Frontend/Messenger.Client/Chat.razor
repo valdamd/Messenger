@@ -29,7 +29,7 @@
                         <MudPaper Elevation="1" Class="pa-3">
                             <MudText Typo="Typo.body1">@message.Content</MudText>
                             <MudText Typo="Typo.caption" Color="Color.Secondary">
-                                @message.CreatedOnUtc.ToLocalTime().ToString("HH:mm:ss")
+                                @message.CreatedAtUtc.ToLocalTime().ToString("HH:mm:ss")
                             </MudText>
                         </MudPaper>
                     }

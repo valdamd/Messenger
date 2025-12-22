@@ -4,11 +4,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Pingo.Message.Domain;
 using Pingo.Messages.Application;
-using Pingo.Messages.Application.Messages;
 using Pingo.Messages.Domain;
-using Pingo.Messages.Domain.Messages;
 using Pingo.Messages.Infrastructure.Database;
-using Pingo.Messages.Infrastructure.Messages;
+using Pingo.Messeges.Infrastructure;
 using Pingo.Messeges.Infrastructure.DataBase;
 
 namespace Pingo.Messages.Infrastructure;

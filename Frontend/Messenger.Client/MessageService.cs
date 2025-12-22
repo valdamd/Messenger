@@ -6,7 +6,8 @@ public sealed class MessageService(HttpClient httpClient) : IMessageService
 {
     public async Task<IReadOnlyList<MessageDto>> GetMessagesAsync()
     {
-        var messages = await httpClient.GetFromJsonAsync<List<MessageDto>?>("api/messages");
+        var messages = await httpClient.GetFromJsonAsync<List<MessageDto>>("api/messages");
+
         if (messages is null || messages.Count == 0)
         {
             return Array.Empty<MessageDto>();
@@ -15,10 +16,20 @@ public sealed class MessageService(HttpClient httpClient) : IMessageService
         return messages.AsReadOnly();
     }
 
-    public async Task SendMessageAsync(string content)
+    public async Task<Guid> SendMessageAsync(string content)
     {
-        var request = new { Content = content };
-        var response = await httpClient.PostAsJsonAsync("api/messages", request);
+        var messageId = Guid.NewGuid();
+        await SendOrUpdateAsync(messageId, content);
+        return messageId;
+    }
+
+    public async Task SendOrUpdateAsync(Guid id, string content)
+    {
+        var request = new
+        {
+            Content = content,
+        };
+        var response = await httpClient.PutAsJsonAsync($"api/messages/{id}", request);
         response.EnsureSuccessStatusCode();
     }
 }

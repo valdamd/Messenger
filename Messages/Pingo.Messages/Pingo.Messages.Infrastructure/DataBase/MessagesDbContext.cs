@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Pingo.Message.Domain;
-using Pingo.Messages.Domain.Messages;
+using Pingo.Messages.Domain;
 using Pingo.Messages.Infrastructure.Database;
 
 namespace Pingo.Messeges.Infrastructure.DataBase;

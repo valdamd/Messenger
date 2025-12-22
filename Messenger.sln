@@ -4,15 +4,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messenger.Client", "Fronten
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Message.Api", "Services\Message\Message.Api\Message.Api.csproj", "{0BBCE6A5-3515-404B-B2E2-37B0A7BE6E3D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Message.Application", "Services\Message\Message.Application\Message.Application.csproj", "{69BAE349-6732-4787-BBD2-2DE2B5AB1657}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pingo.Messages.Infrastructure", "Messages\Pingo.Messages\Pingo.Messages.Infrastructure\Pingo.Messages.Infrastructure.csproj", "{0B61AB7F-7459-4FE6-B9D6-58C9ECF2393A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pingo.Messages.Application", "Messages\Pingo.Messages\Pingo.Messages.Application\Pingo.Messages.Application.csproj", "{CF21E5F3-C77C-4655-8430-6356DCCEC9DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pingo.Messages.Domain", "Messages\Pingo.Messages\Pingo.Messages.Domain\Pingo.Messages.Domain.csproj", "{0AD829B8-66A1-44A0-9646-0713AC599E9C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pingo.Masseges.Presentation", "Messages\Pingo.Messages\Pingo.Masseges.Presentation\Pingo.Masseges.Presentation.csproj", "{076BFEA2-37F6-4D93-B4F8-8A1C796F4F86}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1420A66A-938A-415B-9B35-89E57D395698}"
+	ProjectSection(SolutionItems) = preProject
+		compose.yaml = compose.yaml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,10 +29,6 @@ Global
 		{0BBCE6A5-3515-404B-B2E2-37B0A7BE6E3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BBCE6A5-3515-404B-B2E2-37B0A7BE6E3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BBCE6A5-3515-404B-B2E2-37B0A7BE6E3D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{69BAE349-6732-4787-BBD2-2DE2B5AB1657}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{69BAE349-6732-4787-BBD2-2DE2B5AB1657}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{69BAE349-6732-4787-BBD2-2DE2B5AB1657}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{69BAE349-6732-4787-BBD2-2DE2B5AB1657}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0B61AB7F-7459-4FE6-B9D6-58C9ECF2393A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0B61AB7F-7459-4FE6-B9D6-58C9ECF2393A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B61AB7F-7459-4FE6-B9D6-58C9ECF2393A}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -44,9 +41,5 @@ Global
 		{0AD829B8-66A1-44A0-9646-0713AC599E9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0AD829B8-66A1-44A0-9646-0713AC599E9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0AD829B8-66A1-44A0-9646-0713AC599E9C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{076BFEA2-37F6-4D93-B4F8-8A1C796F4F86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{076BFEA2-37F6-4D93-B4F8-8A1C796F4F86}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{076BFEA2-37F6-4D93-B4F8-8A1C796F4F86}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{076BFEA2-37F6-4D93-B4F8-8A1C796F4F86}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

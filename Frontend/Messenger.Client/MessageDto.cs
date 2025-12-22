@@ -6,5 +6,7 @@ public sealed class MessageDto
 
     public string Content { get; set; } = string.Empty;
 
-    public DateTime CreatedOnUtc { get; set; }
+    public DateTimeOffset CreatedAtUtc { get; set; }
+
+    public DateTimeOffset? UpdatedAtUtc { get; set; }
 }

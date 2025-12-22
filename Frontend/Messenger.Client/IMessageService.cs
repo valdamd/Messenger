@@ -1,14 +1,10 @@
-﻿using Message.Message.Application;
-
-namespace Messenger.Client;
+﻿namespace Messenger.Client;
 
 public interface IMessageService
 {
     Task<IReadOnlyList<MessageDto>> GetMessagesAsync();
 
-    Task SendMessageAsync(string content);
-
     Task SendOrUpdateAsync(Guid id, string content);
 
-    Task<IReadOnlyList<MessageResponse>> GetAllAsync();
+    Task<Guid> SendMessageAsync(string content);
 }

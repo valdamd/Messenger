@@ -1,7 +1,10 @@
-﻿namespace Pingo.Messages.Domain.Messages;
+﻿namespace Pingo.Messages.Domain;
 
 public sealed class ChatMessage
 {
+    private ChatMessage()
+    {
+    }
     public Guid Id { get; private set; }
 
     public string Content { get; private set; } = string.Empty;

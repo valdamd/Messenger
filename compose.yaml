@@ -1,0 +1,47 @@
+﻿version: '3.8'
+
+services:
+    # PostgreSQL база данных
+    pingo.messages.db:
+        image: postgres:17-alpine
+        container_name: pingo-messages-db
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: pingo_messages
+        ports:
+            - "5432:5432"
+        volumes:
+            - pingo_messages_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        networks:
+            - pingo-network
+
+
+    message.api:
+        build:
+            context: .
+            dockerfile: Services/Message/Message.Api/Dockerfile
+        container_name: message-api
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=http://+:8080
+            - ConnectionStrings__MessagesDb=Host=pingo.messages.db;Port=5432;Database=pingo_messages;Username=postgres;Password=postgres
+        ports:
+            - "5132:8080"
+        depends_on:
+            pingo.messages.db:
+                condition: service_healthy
+        networks:
+            - ping-network
+
+volumes:
+    pingo_messages_data:
+
+networks:
+    pingo-network:
+        driver: bridge
