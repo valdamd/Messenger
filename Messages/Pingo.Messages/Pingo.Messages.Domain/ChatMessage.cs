@@ -5,13 +5,14 @@ public sealed class ChatMessage
     private ChatMessage()
     {
     }
+
     public Guid Id { get; private set; }
 
     public string Content { get; private set; } = string.Empty;
 
-    public DateTime CreatedAtUtc { get; private set; }
+    public DateTimeOffset CreatedAtUtc { get; private set; }
 
-    public DateTime? UpdatedAtUtc { get; private set; }
+    public DateTimeOffset? UpdatedAtUtc { get; private set; }
 
     public static ChatMessage Create(Guid id, string content)
     {

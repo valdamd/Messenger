@@ -2,9 +2,9 @@ namespace Pingo.Messages.Domain;
 
 public enum ErrorType
 {
-    None,
-    Problem,
-    NotFound,
-    Conflict,
-    Failure,
+    Failure = 0,
+    Validation = 1,
+    Problem = 2,
+    NotFound = 3,
+    Conflict = 4,
 }
