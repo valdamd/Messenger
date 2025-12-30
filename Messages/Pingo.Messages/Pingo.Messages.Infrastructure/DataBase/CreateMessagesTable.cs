@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Pingo.Messages.Infrastructure.DataBase;
 
-public class CreateMessagesTable : Migration
+public sealed class CreateMessagesTable : Migration
 {
     protected override void Up(MigrationBuilder migrationBuilder)
     {

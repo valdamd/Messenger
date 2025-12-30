@@ -20,7 +20,7 @@ public sealed class ChatMessage
         {
             Id = id,
             Content = content,
-            CreatedAtUtc = DateTime.UtcNow,
+            CreatedAtUtc = DateTimeOffset.UtcNow,
             UpdatedAtUtc = null,
         };
     }
@@ -33,6 +33,6 @@ public sealed class ChatMessage
         }
 
         Content = content;
-        UpdatedAtUtc = DateTime.UtcNow;
+        UpdatedAtUtc = DateTimeOffset.UtcNow;
     }
 }

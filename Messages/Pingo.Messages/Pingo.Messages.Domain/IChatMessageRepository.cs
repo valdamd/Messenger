@@ -1,6 +1,4 @@
-﻿
-
-namespace Pingo.Messages.Domain;
+﻿namespace Pingo.Messages.Domain;
 
 public interface IChatMessageRepository
 {
