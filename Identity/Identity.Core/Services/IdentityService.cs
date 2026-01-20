@@ -1,143 +1,109 @@
-using Dapper;
 using Identity.Core.DTOs.Auth;
 using Identity.Core.DTOs.Users;
-using Microsoft.Extensions.Configuration;
-using Npgsql;
+using Identity.Core.Repositories;
+using Identity.Core.Security;
 using Pingo.Identity;
 
 namespace Identity.Core.Services;
 
 public sealed class IdentityService(
-    IConfiguration configuration,
-    PasswordService passwordService,
-    TokenProvider tokenProvider)
+    IUserRepository userRepository,
+    IRefreshTokenRepository tokenRepository,
+    IPasswordHasher passwordHasher,
+    ITokenProvider tokenProvider) : IIdentityService
 {
-    private string ConnectionString => configuration.GetConnectionString("DefaultConnection")!;
-
-    public async Task<Guid?> RegisterAsync(RegisterUserDto dto)
+    public async Task<Guid?> RegisterAsync(RegisterUserDto request)
     {
-        var user = dto.ToEntity();
-        var (hash, salt) = passwordService.Hash(dto.Password);
-
-        await using var connection = new NpgsqlConnection(ConnectionString);
-        await connection.OpenAsync();
-        await using var transaction = await connection.BeginTransactionAsync();
-
         try
         {
-            await connection.ExecuteAsync(
-                "INSERT INTO users (id, name, email, created_at_utc) VALUES (@Id, @Name, @Email, @CreatedAtUtc)",
-                user, transaction);
+            var existing = await userRepository.GetCredentialByEmailAsync(request.Email);
+            if (existing is not null)
+            {
+                return null;
+            }
 
-            await connection.ExecuteAsync(
-                "INSERT INTO user_credentials (user_id, password_hash, salt) VALUES (@UserId, @PasswordHash, @Salt)",
-                new
-                {
-                    UserId = user.Id, PasswordHash = hash, Salt = salt,
-                }, transaction);
+            var user = request.ToEntity();
+            var credential = new PasswordCredentials()
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                PasswordHash = passwordHasher.HashPassword(request.Password),
+                CreatedAtUtc = DateTimeOffset.UtcNow,
+            };
 
-            await transaction.CommitAsync();
-            return user.Id;
+            return await userRepository.CreateUserAsync(user, credential);
         }
         catch
         {
-            await transaction.RollbackAsync();
             return null;
         }
     }
 
-    public async Task<AccessTokensDto?> LoginAsync(LoginUserDto dto)
+    public async Task<AccessTokensDto?> LoginAsync(LoginUserDto request)
     {
-        await using var connection = new NpgsqlConnection(ConnectionString);
-        var credentials = await connection.QueryFirstOrDefaultAsync<PasswordCredentials>(
-            "SELECT user_id as UserId, password_hash as PasswordHash FROM user_credentials uc JOIN users u ON uc.user_id = u.id WHERE u.email = @Email",
-            new
-            {
-                Email = dto.Email.ToLowerInvariant().Trim(),
-            });
+        var credential = await userRepository.GetCredentialByEmailAsync(request.Email);
 
-        if (credentials == null || !passwordService.Verify(dto.Password, credentials.PasswordHash))
+        if (credential is null || !passwordHasher.VerifyPassword(credential.PasswordHash, request.Password))
         {
             return null;
         }
 
-        var user = await GetUserByIdAsync(credentials.UserId);
-        if (user == null)
+        var user = await userRepository.GetUserByIdAsync(credential.UserId);
+        if (user is null)
         {
             return null;
         }
 
-        var accessToken = tokenProvider.GenerateAccessToken(user);
-        var refreshToken = tokenProvider.GenerateRefreshToken();
-
-        await connection.ExecuteAsync(
-            "INSERT INTO refresh_tokens (id, user_id, token, expires_at_utc) VALUES (@Id, @UserId, @Token, @ExpiresAtUtc)",
-            new
-            {
-                Id = Guid.NewGuid(), UserId = user.Id, Token = refreshToken, ExpiresAtUtc = DateTime.UtcNow.AddDays(7),
-            });
-
-        return new AccessTokensDto(accessToken, refreshToken);
+        return await GenerateTokensAsync(user.Id, user.Email);
     }
 
-    public async Task<AccessTokensDto?> RefreshTokenAsync(string token)
+    public async Task<AccessTokensDto?> RefreshTokenAsync(string refreshToken)
     {
-        using var connection = new NpgsqlConnection(ConnectionString);
-        var refreshToken = await connection.QueryFirstOrDefaultAsync<RefreshToken>(
-            "SELECT id, user_id as UserId, token, expires_at_utc as ExpiresAtUtc FROM refresh_tokens WHERE token = @Token",
-            new
-            {
-                Token = token,
-            });
-
-        if (refreshToken == null || refreshToken.ExpiresAtUtc < DateTime.UtcNow)
+        var token = await tokenRepository.GetValidRefreshTokenAsync(refreshToken);
+        if (token is null)
         {
             return null;
         }
 
-        var user = await GetUserByIdAsync(refreshToken.UserId);
-        if (user == null)
+        var user = await userRepository.GetUserByIdAsync(token.UserId);
+        if (user is null)
         {
             return null;
         }
 
-        var newAccessToken = tokenProvider.GenerateAccessToken(user);
-        var newRefreshToken = tokenProvider.GenerateRefreshToken();
+        await tokenRepository.RevokeTokenAsync(token.Id);
 
-        await connection.ExecuteAsync("DELETE FROM refresh_tokens WHERE id = @Id", new
-            {
-                refreshToken.Id,
-            });
-        await connection.ExecuteAsync(
-            "INSERT INTO refresh_tokens (id, user_id, token, expires_at_utc) VALUES (@Id, @UserId, @Token, @ExpiresAtUtc)",
-            new
-            {
-                Id = Guid.NewGuid(), UserId = user.Id, Token = newRefreshToken, ExpiresAtUtc = DateTime.UtcNow.AddDays(7),
-            });
-
-        return new AccessTokensDto(newAccessToken, newRefreshToken);
+        return await GenerateTokensAsync(token.UserId, user.Email);
     }
 
     public async Task<User?> GetUserByIdAsync(Guid id)
     {
-        using var connection = new NpgsqlConnection(ConnectionString);
-        return await connection.QueryFirstOrDefaultAsync<User>(
-            "SELECT id, name, email, created_at_utc as CreatedAtUtc, updated_at_utc as UpdatedAtUtc FROM users WHERE id = @Id",
-            new
-            {
-                Id = id,
-            });
+        return await userRepository.GetUserByIdAsync(id);
     }
 
-    public async Task<bool> UpdateProfileAsync(Guid userId, UpdateUserProfileDto dto)
+    public async Task<bool> UpdateProfileAsync(Guid userId, UpdateUserProfileDto request)
     {
-        using var connection = new NpgsqlConnection(ConnectionString);
-        var affected = await connection.ExecuteAsync(
-            "UPDATE users SET name = @Name, updated_at_utc = @UpdatedAtUtc WHERE id = @Id",
-            new
-            {
-                dto.Name, UpdatedAtUtc = DateTime.UtcNow, Id = userId,
-            });
-        return affected > 0;
+        return await userRepository.UpdateUserAsync(userId, request.Name);
+    }
+
+    private async Task<AccessTokensDto> GenerateTokensAsync(Guid userId, string email)
+    {
+        var accessToken = tokenProvider.GenerateAccessToken(userId, email);
+        var refreshToken = tokenProvider.GenerateRefreshToken();
+        var expiresAt = tokenProvider.GetRefreshTokenExpiration();
+
+        var token = new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            Token = refreshToken,
+            ExpiresAtUtc = expiresAt,
+            CreatedAtUtc = DateTimeOffset.UtcNow,
+            IsRevoked = false,
+        };
+
+        await tokenRepository.CreateRefreshTokenAsync(token);
+
+        return new AccessTokensDto(accessToken, refreshToken);
     }
 }

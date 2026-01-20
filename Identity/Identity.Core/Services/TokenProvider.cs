@@ -1,42 +1,45 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.JsonWebTokens;
+using Identity.Core.Security;
 using Microsoft.IdentityModel.Tokens;
-using Pingo.Identity;
+using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace Identity.Core.Services;
 
-public sealed class TokenProvider(IConfiguration configuration)
+public sealed class TokenProvider(JwtAuthOptions options) : ITokenProvider
 {
-    public string GenerateAccessToken(User user)
-    {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+    private readonly SymmetricSecurityKey _key = new(Encoding.UTF8.GetBytes(options.Key));
 
-        var claims = new List<Claim>
+    public string GenerateAccessToken(Guid userId, string email)
+    {
+        var claims = new[]
         {
-            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new(JwtRegisteredClaimNames.Email, user.Email),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, email),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 
+        var credentials = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256);
+
         var token = new JwtSecurityToken(
-            issuer: configuration["Jwt:Issuer"],
-            audience: configuration["Jwt:Audience"],
+            issuer: options.Issuer,
+            audience: options.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(double.Parse(configuration["Jwt:DurationInMinutes"] ?? "60")),
-            signingCredentials: creds);
+            expires: DateTime.UtcNow.AddMinutes(options.DurationInMinutes),
+            signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     public string GenerateRefreshToken()
     {
-        var randomNumber = new byte[32];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomNumber);
-        return Convert.ToBase64String(randomNumber);
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    }
+
+    public DateTimeOffset GetRefreshTokenExpiration()
+    {
+        return DateTimeOffset.UtcNow.AddDays(options.RefreshTokenExpirationDays);
     }
 }

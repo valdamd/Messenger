@@ -14,7 +14,7 @@ public static class UserMappings
         };
     }
 
-    public static UserDto ToDto(this User user, List<LinkDto>? links = null)
+    public static UserDto ToDto(this User user)
     {
         return new UserDto
         {
@@ -23,7 +23,6 @@ public static class UserMappings
             Name = user.Name,
             CreatedAtUtc = user.CreatedAtUtc,
             UpdatedAtUtc = user.UpdatedAtUtc,
-            Links = links ?? [],
         };
     }
 }

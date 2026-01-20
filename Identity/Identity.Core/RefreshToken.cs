@@ -9,4 +9,9 @@ public sealed class RefreshToken
     public string Token { get; init; } = string.Empty;
 
     public DateTimeOffset ExpiresAtUtc { get; init; }
+
+    public DateTimeOffset CreatedAtUtc { get; set; }
+
+    public bool IsRevoked { get; set; }
+
 }

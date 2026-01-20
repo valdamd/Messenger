@@ -9,4 +9,6 @@ public sealed class PasswordCredentials
     public string PasswordHash { get; init; } = string.Empty;
 
     public string Salt { get; init; } = string.Empty;
+
+    public DateTimeOffset CreatedAtUtc { get; init; }
 }

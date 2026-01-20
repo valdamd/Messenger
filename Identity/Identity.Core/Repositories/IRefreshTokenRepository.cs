@@ -2,9 +2,9 @@ namespace Identity.Core.Repositories;
 
 public interface IRefreshTokenRepository
 {
-    Task AddAsync(RefreshToken token);
+    Task<Guid> CreateRefreshTokenAsync(RefreshToken token);
 
-    Task<RefreshToken?> GetByTokenAsync(string token);
+    Task<RefreshToken?> GetValidRefreshTokenAsync(string token);
 
-    Task DeleteAsync(Guid id);
+    Task RevokeTokenAsync(Guid tokenId);
 }
