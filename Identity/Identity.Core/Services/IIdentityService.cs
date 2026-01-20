@@ -12,7 +12,7 @@ public interface IIdentityService
 
     Task<AccessTokensDto?> RefreshTokenAsync(string refreshToken);
 
-    Task<User?> GetUserByIdAsync(Guid id);
+    Task<UserDto?> GetUserAsync(Guid id);
 
     Task<bool> UpdateProfileAsync(Guid userId, UpdateUserProfileDto request);
 }

@@ -1,10 +1,8 @@
-namespace Pingo.Identity;
+namespace Identity.Core;
 
 public sealed class User
 {
     public Guid Id { get; set; }
-
-    public string Email { get; set; }
 
     public string Name { get; set; }
 

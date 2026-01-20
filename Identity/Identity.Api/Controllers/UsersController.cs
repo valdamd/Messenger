@@ -13,8 +13,8 @@ public sealed class UsersController(IIdentityService identityService) : Controll
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProfile(Guid id)
     {
-        var user = await identityService.GetUserByIdAsync(id);
-        return user is null ? NotFound() : Ok(user.ToDto());
+        var userDto = await identityService.GetUserAsync(id);
+        return userDto is null ? NotFound() : Ok(userDto);
     }
 
     [HttpPut("{id:guid}")]

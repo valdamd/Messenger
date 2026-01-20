@@ -1,7 +1,5 @@
 ﻿version: '3.8'
-
 services:
-    # PostgreSQL база данных
     pingo.messages.db:
         image: postgres:17-alpine
         container_name: pingo-messages-db
@@ -20,8 +18,6 @@ services:
             retries: 5
         networks:
             - pingo-network
-
-
     message.api:
         build:
             context: .
@@ -37,11 +33,39 @@ services:
             pingo.messages.db:
                 condition: service_healthy
         networks:
-            - ping-network
-
+            - pingo-network
+    # --- Identity Service ---
+    identity.api:
+        image: identity.api
+        build:
+            context: .
+            dockerfile: Identity/Dockerfile
+        container_name: identity-api
+        ports:
+            - "8080:8080"
+            - "8081:8081"
+        environment:
+            - ConnectionStrings__DefaultConnection=Host=identity.postgres;Database=identity_db;Username=postgres;Password=postgres
+        depends_on:
+            - identity.postgres
+        networks:
+            - pingo-network
+    identity.postgres:
+        image: postgres:15-alpine
+        container_name: identity-postgres
+        environment:
+            - POSTGRES_DB=identity_db
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+        ports:
+            - "5433:5432" # Changed host port to 5433 to avoid conflict
+        volumes:
+            - identity_postgres_data:/var/lib/postgresql/data
+        networks:
+            - pingo-network
 volumes:
     pingo_messages_data:
-
+    identity_postgres_data:
 networks:
     pingo-network:
         driver: bridge

@@ -1,6 +1,4 @@
 using Identity.Core.DTOs.Auth;
-using Identity.Core.DTOs.Common;
-using Pingo.Identity;
 
 namespace Identity.Core.DTOs.Users;
 
@@ -10,16 +8,16 @@ public static class UserMappings
     {
         return new User
         {
-            Id = Guid.CreateVersion7(), Name = dto.Name, Email = dto.Email.ToLowerInvariant().Trim(), CreatedAtUtc = DateTimeOffset.UtcNow,
+            Id = Guid.CreateVersion7(), Name = dto.Name, CreatedAtUtc = DateTimeOffset.UtcNow,
         };
     }
 
-    public static UserDto ToDto(this User user)
+    public static UserDto ToDto(this User user, string email)
     {
         return new UserDto
         {
             Id = user.Id,
-            Email = user.Email,
+            Email = email,
             Name = user.Name,
             CreatedAtUtc = user.CreatedAtUtc,
             UpdatedAtUtc = user.UpdatedAtUtc,

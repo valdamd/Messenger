@@ -5,13 +5,10 @@ public static class DatabaseMigrations
     public const string CreateUsersTable = """
         CREATE TABLE IF NOT EXISTS users (
             id UUID PRIMARY KEY,
-            email VARCHAR(320) NOT NULL UNIQUE,
             name VARCHAR(100) NOT NULL,
             created_at_utc TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at_utc TIMESTAMPTZ
         );
-
-        CREATE INDEX IF NOT EXISTS idx_users_email ON users(LOWER(email));
         """;
 
     public const string CreateUserCredentialsTable = """
@@ -19,9 +16,9 @@ public static class DatabaseMigrations
             user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
             email VARCHAR(320) NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
+            salt TEXT NOT NULL,
             created_at_utc TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
-
         CREATE UNIQUE INDEX IF NOT EXISTS idx_user_credentials_email ON user_credentials(LOWER(email));
         """;
 
@@ -34,7 +31,6 @@ public static class DatabaseMigrations
             created_at_utc TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             is_revoked BOOLEAN NOT NULL DEFAULT FALSE
         );
-
         CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens(user_id);
         CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token) WHERE NOT is_revoked;
         CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expires_at ON refresh_tokens(expires_at_utc);

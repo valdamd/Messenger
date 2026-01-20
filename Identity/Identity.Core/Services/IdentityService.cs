@@ -2,7 +2,6 @@ using Identity.Core.DTOs.Auth;
 using Identity.Core.DTOs.Users;
 using Identity.Core.Repositories;
 using Identity.Core.Security;
-using Pingo.Identity;
 
 namespace Identity.Core.Services;
 
@@ -23,11 +22,12 @@ public sealed class IdentityService(
             }
 
             var user = request.ToEntity();
+            var (hash, salt) = passwordHasher.HashPassword(request.Password);
             var credential = new PasswordCredentials()
             {
                 UserId = user.Id,
-                Email = user.Email,
-                PasswordHash = passwordHasher.HashPassword(request.Password),
+                PasswordHash = hash,
+                Salt = salt,
                 CreatedAtUtc = DateTimeOffset.UtcNow,
             };
 
@@ -43,7 +43,7 @@ public sealed class IdentityService(
     {
         var credential = await userRepository.GetCredentialByEmailAsync(request.Email);
 
-        if (credential is null || !passwordHasher.VerifyPassword(credential.PasswordHash, request.Password))
+        if (credential is null || !passwordHasher.VerifyPassword(request.Password, credential.PasswordHash, credential.Salt))
         {
             return null;
         }
@@ -54,7 +54,7 @@ public sealed class IdentityService(
             return null;
         }
 
-        return await GenerateTokensAsync(user.Id, user.Email);
+        return await GenerateTokensAsync(user.Id, credential.Email);
     }
 
     public async Task<AccessTokensDto?> RefreshTokenAsync(string refreshToken)
@@ -71,14 +71,27 @@ public sealed class IdentityService(
             return null;
         }
 
+        var email = await userRepository.GetEmailByUserIdAsync(token.UserId);
         await tokenRepository.RevokeTokenAsync(token.Id);
 
-        return await GenerateTokensAsync(token.UserId, user.Email);
+        return await GenerateTokensAsync(token.UserId, email);
     }
 
-    public async Task<User?> GetUserByIdAsync(Guid id)
+    public async Task<UserDto?> GetUserAsync(Guid id)
     {
-        return await userRepository.GetUserByIdAsync(id);
+        var user = await userRepository.GetUserByIdAsync(id);
+        if (user is null)
+        {
+            return null;
+        }
+
+        var email = await userRepository.GetEmailByUserIdAsync(id);
+        if (email is null)
+        {
+            return null;
+        }
+
+        return user.ToDto(email);
     }
 
     public async Task<bool> UpdateProfileAsync(Guid userId, UpdateUserProfileDto request)

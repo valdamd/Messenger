@@ -14,15 +14,15 @@ public sealed class UserRepository(NpgsqlDataSource dataSource) : IUserRepositor
         try
         {
             const string insertUser = """
-                INSERT INTO users (id, email, name, created_at_utc)
-                VALUES (@Id, @Email, @Name, @CreatedAtUtc)
+                INSERT INTO users (id, name, created_at_utc)
+                VALUES (@Id, @Name, @CreatedAtUtc)
                 """;
 
             await connection.ExecuteAsync(insertUser, user, transaction);
 
             const string insertCredential = """
-                INSERT INTO user_credentials (user_id, email, password_hash, created_at_utc)
-                VALUES (@UserId, @Email, @PasswordHash, @CreatedAtUtc)
+                INSERT INTO user_credentials (user_id, email, password_hash, salt, created_at_utc)
+                VALUES (@UserId, @Email, @PasswordHash, @Salt, @CreatedAtUtc)
                 """;
 
             await connection.ExecuteAsync(insertCredential, credential, transaction);
@@ -42,7 +42,7 @@ public sealed class UserRepository(NpgsqlDataSource dataSource) : IUserRepositor
         await using var connection = await dataSource.OpenConnectionAsync();
 
         const string query = """
-            SELECT user_id AS UserId, email, password_hash AS PasswordHash, created_at_utc AS CreatedAtUtc
+            SELECT user_id AS UserId, email, password_hash AS PasswordHash, salt, created_at_utc AS CreatedAtUtc
             FROM user_credentials
             WHERE LOWER(email) = LOWER(@Email)
             """;
@@ -60,7 +60,7 @@ public sealed class UserRepository(NpgsqlDataSource dataSource) : IUserRepositor
         await using var connection = await dataSource.OpenConnectionAsync();
 
         const string query = """
-            SELECT id, email, name, created_at_utc AS CreatedAtUtc, updated_at_utc AS UpdatedAtUtc
+            SELECT id, name, created_at_utc AS CreatedAtUtc, updated_at_utc AS UpdatedAtUtc
             FROM users
             WHERE id = @UserId
             """;
@@ -71,6 +71,13 @@ public sealed class UserRepository(NpgsqlDataSource dataSource) : IUserRepositor
             {
                 UserId = userId,
             });
+    }
+
+    public async Task<string?> GetEmailByUserIdAsync(Guid userId)
+    {
+        await using var connection = await dataSource.OpenConnectionAsync();
+        const string query = "SELECT email FROM user_credentials WHERE user_id = @UserId";
+        return await connection.ExecuteScalarAsync<string>(query, new { UserId = userId });
     }
 
     public async Task<bool> UpdateUserAsync(Guid userId, string name)

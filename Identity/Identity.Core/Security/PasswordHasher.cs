@@ -8,42 +8,32 @@ public class PasswordHasher : IPasswordHasher
     private const int HashSize = 32;
     private const int Iterations = 100000;
 
-    public string HashPassword(string password)
+    public (string, string) HashPassword(string password)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(password);
-
-        var salt = RandomNumberGenerator.GetBytes(SaltSize);
-        var hash = Rfc2898DeriveBytes.Pbkdf2(
+        var saltBytes = RandomNumberGenerator.GetBytes(SaltSize);
+        var hashBytes = Rfc2898DeriveBytes.Pbkdf2(
             password,
-            salt,
+            saltBytes,
             Iterations,
             HashAlgorithmName.SHA512,
             HashSize);
-
-        return $"{Convert.ToBase64String(salt)}:{Convert.ToBase64String(hash)}";
+        return (Convert.ToBase64String(hashBytes), Convert.ToBase64String(saltBytes));
     }
 
-    public bool VerifyPassword(string hashedPassword, string providedPassword)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(hashedPassword);
-        ArgumentException.ThrowIfNullOrWhiteSpace(providedPassword);
-
-        var parts = hashedPassword.Split(':');
-        if (parts.Length != 2)
+    public bool VerifyPassword(string providedPassword, string hash, string salt)
         {
-            return false;
+            ArgumentException.ThrowIfNullOrWhiteSpace(providedPassword);
+            ArgumentException.ThrowIfNullOrWhiteSpace(hash);
+            ArgumentException.ThrowIfNullOrWhiteSpace(salt);
+            var saltBytes = Convert.FromBase64String(salt);
+            var originalHashBytes = Convert.FromBase64String(hash);
+            var testHashBytes = Rfc2898DeriveBytes.Pbkdf2(
+                providedPassword,
+                saltBytes,
+                Iterations,
+                HashAlgorithmName.SHA512,
+                HashSize);
+            return CryptographicOperations.FixedTimeEquals(originalHashBytes, testHashBytes);
         }
-
-        var salt = Convert.FromBase64String(parts[0]);
-        var originalHash = Convert.FromBase64String(parts[1]);
-
-        var testHash = Rfc2898DeriveBytes.Pbkdf2(
-            providedPassword,
-            salt,
-            Iterations,
-            HashAlgorithmName.SHA512,
-            HashSize);
-
-        return CryptographicOperations.FixedTimeEquals(originalHash, testHash);
-    }
 }
