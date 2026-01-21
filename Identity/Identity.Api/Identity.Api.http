@@ -1,6 +1,43 @@
 @Identity.Api_HostAddress = http://localhost:5000
+@Email = test@example.com
+@Password = Password123!
+@Name = UseName
 
-GET {{Identity.Api_HostAddress}}/weatherforecast/
+### 1. Register User
+POST {{Identity.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "{{Email}}",
+  "password": "{{Password}}",
+  "name": "{{Name}}"
+}
+
+> {%
+    client.global.set("UserId", response.body.userId);
+%}
+
+### 2. Login User
+POST {{Identity.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{Email}}",
+  "password": "{{Password}}"
+}
+
+> {%
+    client.global.set("AccessToken", response.body.accessToken);
+    client.global.set("RefreshToken", response.body.refreshToken);
+%}
+
+### 3. Get User Profile (Protected)
+GET {{Identity.Api_HostAddress}}/api/users/{{UserId}}
+Authorization: Bearer {{AccessToken}}
 Accept: application/json
 
-###
+### 4. Refresh Token
+POST {{Identity.Api_HostAddress}}/api/auth/refresh
+Content-Type: application/json
+
+"{{RefreshToken}}"
