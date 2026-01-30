@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Pingo.Messages.Domain;
 using Pingo.Messages.Infrastructure.Database;
 
-namespace Pingo.Messeges.Infrastructure.DataBase;
+namespace Pingo.Messages.Infrastructure.DataBase;
 
 public sealed class MessagesDbContext(DbContextOptions<MessagesDbContext> options)
     : DbContext(options), IUnitOfWork

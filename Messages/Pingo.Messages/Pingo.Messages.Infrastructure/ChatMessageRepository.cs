@@ -2,7 +2,7 @@
 using Pingo.Messages.Domain;
 using Pingo.Messeges.Infrastructure.DataBase;
 
-namespace Pingo.Messeges.Infrastructure;
+namespace Pingo.Messages.Infrastructure;
 
 internal sealed class ChatMessageRepository(MessagesDbContext dbContext) : IChatMessageRepository
 {

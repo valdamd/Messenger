@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using Pingo.Messeges.Infrastructure.DataBase;
+using Pingo.Messages.Infrastructure.DataBase;
 
 #nullable disable
 
-namespace Pingo.Messeges.Infrastructure.Migrations
+namespace Pingo.Messages.Infrastructure.Migrations
 {
     [DbContext(typeof(MessagesDbContext))]
     partial class MessagesDbContextModelSnapshot : ModelSnapshot

@@ -5,5 +5,10 @@
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AIDisposable_002Ecs_002Fl_003A_002E_002E_003F_002E_002E_003FAppData_003FRoaming_003FJetBrains_003FRider2025_002E3_003Fresharper_002Dhost_003FDecompilerCache_003Fdecompiler_003Fe31e5adc676d44c79a639a65fd4b8ed0cef08_003F9f_003F62895796_003FIDisposable_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=BC595AF5_002D7979_002D41D2_002DA9AC_002DE36DACDA513A_002Fd_003ADatabase_002Ff_003ADatabaseMigrations_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a7bf6b1a_002Dd2ec_002D45d5_002Daa63_002Dd6bd13448021/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from &amp;lt;Pingo.Messages.ComponentTests&amp;gt;" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Project Location="C:\Users\White\RiderProjects\Messenger\Tests\Pingo.Messages.ComponentTests" Presentation="&amp;lt;Pingo.Messages.ComponentTests&amp;gt;" /&gt;&#xD;
+  &lt;Or&gt;&#xD;
+    &lt;Project Location="C:\Users\White\RiderProjects\Messenger\Tests\Pingo.Messages.ComponentTests" Presentation="&amp;lt;Pingo.Messages.ComponentTests&amp;gt;" /&gt;&#xD;
+    &lt;TestAncestor&gt;&#xD;
+      &lt;TestId&gt;xUnit::7E37DD51-C378-486D-A766-E3711C757AF7::net10.0::Pingo.Messages.UnitTests.Messages.ChatMessageTests&lt;/TestId&gt;&#xD;
+    &lt;/TestAncestor&gt;&#xD;
+  &lt;/Or&gt;&#xD;
 &lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

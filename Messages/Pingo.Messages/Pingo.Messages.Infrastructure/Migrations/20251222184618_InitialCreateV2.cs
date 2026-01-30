@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Pingo.Messeges.Infrastructure.Migrations
+namespace Pingo.Messages.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public sealed partial class InitialCreateV2 : Migration
