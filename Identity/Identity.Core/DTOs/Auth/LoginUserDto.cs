@@ -1,6 +1,6 @@
 namespace Identity.Core.DTOs.Auth;
 
-public record LoginUserDto
+public sealed record LoginUserDto
 {
     public required string Email { get; init; }
 

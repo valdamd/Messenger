@@ -1,3 +1,6 @@
 namespace Identity.Core.DTOs.Users;
 
-public record UpdateUserProfileDto(string Name);
+public sealed record UpdateUserProfileDto
+{
+    public required string Name { get; init; }
+}

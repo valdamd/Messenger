@@ -1,6 +1,5 @@
 using Dapper;
 using Npgsql;
-using Pingo.Identity;
 
 namespace Identity.Core.Repositories;
 
@@ -77,7 +76,10 @@ public sealed class UserRepository(NpgsqlDataSource dataSource) : IUserRepositor
     {
         await using var connection = await dataSource.OpenConnectionAsync();
         const string query = "SELECT email FROM user_credentials WHERE user_id = @UserId";
-        return await connection.ExecuteScalarAsync<string>(query, new { UserId = userId });
+        return await connection.ExecuteScalarAsync<string>(query, new
+            {
+                UserId = userId,
+            });
     }
 
     public async Task<bool> UpdateUserAsync(Guid userId, string name)

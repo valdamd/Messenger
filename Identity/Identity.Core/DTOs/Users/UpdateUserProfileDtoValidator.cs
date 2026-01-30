@@ -6,6 +6,9 @@ public sealed class UpdateUserProfileDtoValidator : AbstractValidator<UpdateUser
 {
     public UpdateUserProfileDtoValidator()
     {
-        RuleFor(x => x.Name).NotEmpty().MinimumLength(2);
+        RuleFor(x => x.Name)
+            .NotEmpty()
+            .MinimumLength(2)
+            .MaximumLength(100);
     }
 }

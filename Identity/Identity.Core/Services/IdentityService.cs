@@ -26,6 +26,7 @@ public sealed class IdentityService(
             var credential = new PasswordCredentials()
             {
                 UserId = user.Id,
+                Email = request.Email,
                 PasswordHash = hash,
                 Salt = salt,
                 CreatedAtUtc = DateTimeOffset.UtcNow,
@@ -57,9 +58,9 @@ public sealed class IdentityService(
         return await GenerateTokensAsync(user.Id, credential.Email);
     }
 
-    public async Task<AccessTokensDto?> RefreshTokenAsync(string refreshToken)
+    public async Task<AccessTokensDto?> RefreshTokenAsync(RefreshTokenDto refreshTokenDto)
     {
-        var token = await tokenRepository.GetValidRefreshTokenAsync(refreshToken);
+        var token = await tokenRepository.GetValidRefreshTokenAsync(refreshTokenDto.RefreshToken);
         if (token is null)
         {
             return null;
@@ -107,7 +108,7 @@ public sealed class IdentityService(
 
         var token = new RefreshToken
         {
-            Id = Guid.NewGuid(),
+            Id = Guid.CreateVersion7(),
             UserId = userId,
             Token = refreshToken,
             ExpiresAtUtc = expiresAt,

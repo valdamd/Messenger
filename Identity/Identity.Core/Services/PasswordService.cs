@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-
 namespace Identity.Core.Services;
 
 public class PasswordService

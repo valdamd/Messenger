@@ -1,3 +1,4 @@
+using FluentValidation;
 using Identity.Core.DTOs.Auth;
 using Identity.Core.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -6,13 +7,18 @@ namespace Identity.Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public sealed class AuthController(IIdentityService identityService) : ControllerBase
+public sealed class AuthController(
+    IIdentityService identityService) : ControllerBase
 {
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Register([FromBody] RegisterUserDto request)
+    public async Task<IActionResult> Register(
+        [FromBody] RegisterUserDto request,
+        [FromServices] IValidator<RegisterUserDto> validator)
     {
+        await validator.ValidateAndThrowAsync(request, cancellationToken: HttpContext.RequestAborted);
+
         var userId = await identityService.RegisterAsync(request);
 
         return userId is null
@@ -29,8 +35,12 @@ public sealed class AuthController(IIdentityService identityService) : Controlle
     [HttpPost("login")]
     [ProducesResponseType<AccessTokensDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Login([FromBody] LoginUserDto request)
+    public async Task<IActionResult> Login(
+        [FromBody] LoginUserDto request,
+        [FromServices] IValidator<LoginUserDto> validator)
     {
+        await validator.ValidateAndThrowAsync(request, cancellationToken: HttpContext.RequestAborted);
+
         var result = await identityService.LoginAsync(request);
         return result is null ? Unauthorized() : Ok(result);
     }
@@ -38,9 +48,13 @@ public sealed class AuthController(IIdentityService identityService) : Controlle
     [HttpPost("refresh")]
     [ProducesResponseType<AccessTokensDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Refresh([FromBody] string refreshToken)
+    public async Task<IActionResult> Refresh(
+        [FromBody] RefreshTokenDto refreshTokenDto,
+        [FromServices] IValidator<RefreshTokenDto> validator)
     {
-        var result = await identityService.RefreshTokenAsync(refreshToken);
+        await validator.ValidateAndThrowAsync(refreshTokenDto, cancellationToken: HttpContext.RequestAborted);
+
+        var result = await identityService.RefreshTokenAsync(refreshTokenDto);
         return result is null ? Unauthorized() : Ok(result);
     }
 }

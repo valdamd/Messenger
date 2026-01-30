@@ -1,6 +1,5 @@
 using Identity.Core.DTOs.Auth;
 using Identity.Core.DTOs.Users;
-using Pingo.Identity;
 
 namespace Identity.Core.Services;
 
@@ -10,7 +9,7 @@ public interface IIdentityService
 
     Task<AccessTokensDto?> LoginAsync(LoginUserDto request);
 
-    Task<AccessTokensDto?> RefreshTokenAsync(string refreshToken);
+    Task<AccessTokensDto?> RefreshTokenAsync(RefreshTokenDto refreshTokenDto);
 
     Task<UserDto?> GetUserAsync(Guid id);
 
