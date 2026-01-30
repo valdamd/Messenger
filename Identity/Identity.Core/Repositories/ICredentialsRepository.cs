@@ -5,4 +5,6 @@ public interface ICredentialsRepository
     Task AddAsync(PasswordCredentials credentials);
 
     Task<PasswordCredentials?> GetByEmailAsync(string email);
+
+    Task<string?> GetEmailByUserIdAsync(Guid userId);
 }

@@ -1,10 +1,12 @@
 using System.Text;
 using FluentValidation;
+using Identity.Api.Services;
 using Identity.Core.Database;
 using Identity.Core.Repositories;
 using Identity.Core.Security;
 using Identity.Core.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 
@@ -12,11 +14,15 @@ namespace Identity.Api;
 
 public static class DependencyInjection
 {
+    [Obsolete("Obsolete")]
     public static WebApplicationBuilder AddApiServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+        builder.Services.AddScoped<LinkService>();
 
         return builder;
     }
@@ -33,11 +39,12 @@ public static class DependencyInjection
 
     public static WebApplicationBuilder AddApplicationServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+        builder.Services.AddValidatorsFromAssemblyContaining<IIdentityService>();
 
         builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
         builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<ICredentialsRepository, CredentialsRepository>();
         builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         builder.Services.AddScoped<IIdentityService, IdentityService>();
 

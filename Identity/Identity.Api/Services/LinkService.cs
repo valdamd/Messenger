@@ -1,42 +1,42 @@
 using Identity.Core.DTOs.Common;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace Identity.Api.Services;
 
-public sealed class LinkGenerator(IUrlHelper urlHelper)
+public sealed class LinkService
 {
+    private readonly IUrlHelper _urlHelper;
+
+    public LinkService(IUrlHelperFactory urlHelperFactory, IActionContextAccessor actionContextAccessor)
+    {
+        _urlHelper = urlHelperFactory.GetUrlHelper(actionContextAccessor.ActionContext!);
+    }
+
     public List<LinkDto> GenerateUserLinks(Guid userId)
     {
-        return new List<LinkDto>
-        {
-            new()
+        return
+        [
+            new LinkDto
             {
-                Href = urlHelper.Link("GetUserById", new
-                {
-                    id = userId,
-                }) ?? string.Empty,
+                Href = _urlHelper.Link("GetUserById", new
+                    {
+                        id = userId,
+                    }) ?? string.Empty,
                 Rel = "self",
                 Method = "GET",
             },
-            new()
+            new LinkDto
             {
-                Href = urlHelper.Link("UpdateUser", new
-                {
-                    id = userId,
-                }) ?? string.Empty,
+                Href = _urlHelper.Link("UpdateUser", new
+                    {
+                        id = userId,
+                    }) ?? string.Empty,
                 Rel = "update_user",
                 Method = "PUT",
             },
-            new()
-            {
-                Href = urlHelper.Link("DeleteUser", new
-                {
-                    id = userId,
-                }) ?? string.Empty,
-                Rel = "delete_user",
-                Method = "DELETE",
-            },
-        };
+        ];
     }
 
     public List<LinkDto> GeneratePaginationLinks(string routeName, int page, int pageSize, int totalPages)
@@ -45,7 +45,7 @@ public sealed class LinkGenerator(IUrlHelper urlHelper)
         {
             new LinkDto
             {
-                Href = urlHelper.Link(routeName, new
+                Href = _urlHelper.Link(routeName, new
                     {
                         page, pageSize,
                     }) ?? string.Empty,
@@ -58,7 +58,10 @@ public sealed class LinkGenerator(IUrlHelper urlHelper)
         {
             links.Add(new LinkDto
             {
-                Href = urlHelper.Link(routeName, new { page = page - 1, pageSize }) ?? string.Empty,
+                Href = _urlHelper.Link(routeName, new
+                {
+                    page = page - 1, pageSize,
+                }) ?? string.Empty,
                 Rel = "previous_page",
                 Method = "GET",
             });
@@ -68,7 +71,10 @@ public sealed class LinkGenerator(IUrlHelper urlHelper)
         {
             links.Add(new LinkDto
             {
-                Href = urlHelper.Link(routeName, new { page = page + 1, pageSize }) ?? string.Empty,
+                Href = _urlHelper.Link(routeName, new
+                {
+                    page = page + 1, pageSize,
+                }) ?? string.Empty,
                 Rel = "next_page",
                 Method = "GET",
             });

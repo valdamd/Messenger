@@ -7,6 +7,7 @@ namespace Identity.Core.Services;
 
 public sealed class IdentityService(
     IUserRepository userRepository,
+    ICredentialsRepository credentialsRepository,
     IRefreshTokenRepository tokenRepository,
     IPasswordHasher passwordHasher,
     ITokenProvider tokenProvider) : IIdentityService
@@ -15,7 +16,7 @@ public sealed class IdentityService(
     {
         try
         {
-            var existing = await userRepository.GetCredentialByEmailAsync(request.Email);
+            var existing = await credentialsRepository.GetByEmailAsync(request.Email);
             if (existing is not null)
             {
                 return null;
@@ -23,7 +24,7 @@ public sealed class IdentityService(
 
             var user = request.ToEntity();
             var (hash, salt) = passwordHasher.HashPassword(request.Password);
-            var credential = new PasswordCredentials()
+            var credential = new PasswordCredentials
             {
                 UserId = user.Id,
                 Email = request.Email,
@@ -32,7 +33,10 @@ public sealed class IdentityService(
                 CreatedAtUtc = DateTimeOffset.UtcNow,
             };
 
-            return await userRepository.CreateUserAsync(user, credential);
+            await userRepository.CreateUserAsync(user);
+            await credentialsRepository.AddAsync(credential);
+
+            return user.Id;
         }
         catch
         {
@@ -42,7 +46,7 @@ public sealed class IdentityService(
 
     public async Task<AccessTokensDto?> LoginAsync(LoginUserDto request)
     {
-        var credential = await userRepository.GetCredentialByEmailAsync(request.Email);
+        var credential = await credentialsRepository.GetByEmailAsync(request.Email);
 
         if (credential is null || !passwordHasher.VerifyPassword(request.Password, credential.PasswordHash, credential.Salt))
         {
@@ -72,10 +76,10 @@ public sealed class IdentityService(
             return null;
         }
 
-        var email = await userRepository.GetEmailByUserIdAsync(token.UserId);
+        var email = await credentialsRepository.GetEmailByUserIdAsync(token.UserId);
         await tokenRepository.RevokeTokenAsync(token.Id);
 
-        return await GenerateTokensAsync(token.UserId, email);
+        return await GenerateTokensAsync(token.UserId, email!);
     }
 
     public async Task<UserDto?> GetUserAsync(Guid id)
@@ -86,7 +90,7 @@ public sealed class IdentityService(
             return null;
         }
 
-        var email = await userRepository.GetEmailByUserIdAsync(id);
+        var email = await credentialsRepository.GetEmailByUserIdAsync(id);
         if (email is null)
         {
             return null;
