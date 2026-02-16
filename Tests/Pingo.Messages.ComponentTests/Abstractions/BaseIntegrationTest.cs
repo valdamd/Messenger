@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
-using Pingo.Messeges.Infrastructure.DataBase;
+using Pingo.Messages.Infrastructure.DataBase;
+
 
 namespace Pingo.Messages.ComponentTests.Abstractions;
 

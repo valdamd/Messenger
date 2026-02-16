@@ -6,7 +6,7 @@ using Pingo.Messages.UnitTests.Abstractions;
 
 namespace Pingo.Messages.UnitTests.Services;
 
-public class MessageServiceTests : BaseTest
+public sealed class MessageServiceTests : BaseTest
 {
     private readonly IChatMessageRepository _messageRepository;
     private readonly IUnitOfWork _unitOfWork;

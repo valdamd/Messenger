@@ -52,7 +52,6 @@ public sealed class DatabaseMigrationService(
                 catch (OperationCanceledException)
                 {
                     logger.LogInformation("Применение миграций отменено");
-                    return;
                 }
             }
             catch (Exception ex) when (!stoppingToken.IsCancellationRequested)

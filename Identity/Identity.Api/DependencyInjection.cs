@@ -1,6 +1,8 @@
 using System.Text;
 using FluentValidation;
+using Identity.Api.DTOs.Auth;
 using Identity.Api.Services;
+using Identity.Core.Clock;
 using Identity.Core.Database;
 using Identity.Core.Repositories;
 using Identity.Core.Security;
@@ -14,7 +16,6 @@ namespace Identity.Api;
 
 public static class DependencyInjection
 {
-    [Obsolete("Obsolete")]
     public static WebApplicationBuilder AddApiServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddControllers();
@@ -39,8 +40,9 @@ public static class DependencyInjection
 
     public static WebApplicationBuilder AddApplicationServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddValidatorsFromAssemblyContaining<IIdentityService>();
+        builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>();
 
+        builder.Services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
         builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -53,14 +55,9 @@ public static class DependencyInjection
 
     public static WebApplicationBuilder AddAuthenticationServices(this WebApplicationBuilder builder)
     {
-        var jwtOptions = new JwtAuthOptions
-        {
-            Key = builder.Configuration["Jwt:Key"]!,
-            Issuer = builder.Configuration["Jwt:Issuer"]!,
-            Audience = builder.Configuration["Jwt:Audience"]!,
-            DurationInMinutes = builder.Configuration.GetValue<int>("Jwt:DurationInMinutes"),
-            RefreshTokenExpirationDays = builder.Configuration.GetValue<int>("Jwt:RefreshTokenExpirationDays"),
-        };
+        var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtAuthOptions>()
+                         ?? throw new InvalidOperationException("Jwt configuration section is missing.");
+        ValidateJwtOptions(jwtOptions);
         builder.Services.AddSingleton(jwtOptions);
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -72,6 +69,7 @@ public static class DependencyInjection
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.FromSeconds(30),
                     ValidIssuer = jwtOptions.Issuer,
                     ValidAudience = jwtOptions.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(
@@ -89,5 +87,33 @@ public static class DependencyInjection
         builder.Services.AddHostedService<DatabaseMigrationService>();
 
         return builder;
+    }
+
+    private static void ValidateJwtOptions(JwtAuthOptions options)
+    {
+        if (string.IsNullOrWhiteSpace(options.Key) || Encoding.UTF8.GetByteCount(options.Key) < 32)
+        {
+            throw new InvalidOperationException("Jwt:Key must be at least 32 bytes.");
+        }
+
+        if (string.IsNullOrWhiteSpace(options.Issuer))
+        {
+            throw new InvalidOperationException("Jwt:Issuer is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(options.Audience))
+        {
+            throw new InvalidOperationException("Jwt:Audience is required.");
+        }
+
+        if (options.DurationInMinutes <= 0)
+        {
+            throw new InvalidOperationException("Jwt:DurationInMinutes must be positive.");
+        }
+
+        if (options.RefreshTokenExpirationDays <= 0)
+        {
+            throw new InvalidOperationException("Jwt:RefreshTokenExpirationDays must be positive.");
+        }
     }
 }

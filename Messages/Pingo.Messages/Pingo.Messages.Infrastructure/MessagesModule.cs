@@ -5,8 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Pingo.Messages.Application;
 using Pingo.Messages.Domain;
 using Pingo.Messages.Infrastructure.Database;
-using Pingo.Messeges.Infrastructure;
-using Pingo.Messeges.Infrastructure.DataBase;
+using Pingo.Messages.Infrastructure.DataBase;
 
 namespace Pingo.Messages.Infrastructure;
 

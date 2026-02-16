@@ -2,11 +2,11 @@ namespace Identity.Core;
 
 public sealed class User
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public string Name { get; set; }
+    public string Name { get; init; } = string.Empty;
 
-    public DateTimeOffset CreatedAtUtc { get; set; }
+    public DateTimeOffset CreatedAtUtc { get; init; }
 
-    public DateTimeOffset? UpdatedAtUtc { get; set; }
+    public DateTimeOffset? UpdatedAtUtc { get; init; }
 }

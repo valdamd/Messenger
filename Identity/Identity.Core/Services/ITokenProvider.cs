@@ -6,5 +6,7 @@ public interface ITokenProvider
 
     string GenerateRefreshToken();
 
+    string HashRefreshToken(string refreshToken);
+
     DateTimeOffset GetRefreshTokenExpiration();
 }

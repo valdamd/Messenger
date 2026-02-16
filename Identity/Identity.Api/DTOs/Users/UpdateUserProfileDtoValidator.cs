@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Identity.Core.DTOs.Users;
+namespace Identity.Api.DTOs.Users;
 
 public sealed class UpdateUserProfileDtoValidator : AbstractValidator<UpdateUserProfileDto>
 {

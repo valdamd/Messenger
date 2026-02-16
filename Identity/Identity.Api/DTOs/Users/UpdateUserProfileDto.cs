@@ -1,4 +1,4 @@
-namespace Identity.Core.DTOs.Users;
+namespace Identity.Api.DTOs.Users;
 
 public sealed record UpdateUserProfileDto
 {

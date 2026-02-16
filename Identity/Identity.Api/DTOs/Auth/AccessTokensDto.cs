@@ -1,3 +1,3 @@
-namespace Identity.Core.DTOs.Auth;
+namespace Identity.Api.DTOs.Auth;
 
 public sealed record AccessTokensDto(string AccessToken, string RefreshToken);

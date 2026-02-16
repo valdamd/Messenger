@@ -1,17 +1,16 @@
-using Identity.Core.DTOs.Auth;
-using Identity.Core.DTOs.Users;
+using Identity.Core.Services.Models;
 
 namespace Identity.Core.Services;
 
 public interface IIdentityService
 {
-    Task<Guid?> RegisterAsync(RegisterUserDto request);
+    Task<Guid?> RegisterAsync(RegisterUserRequest request);
 
-    Task<AccessTokensDto?> LoginAsync(LoginUserDto request);
+    Task<AccessTokens?> LoginAsync(LoginUserRequest request);
 
-    Task<AccessTokensDto?> RefreshTokenAsync(RefreshTokenDto refreshTokenDto);
+    Task<AccessTokens?> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest);
 
-    Task<UserDto?> GetUserAsync(Guid id);
+    Task<UserProfile?> GetUserAsync(Guid id);
 
-    Task<bool> UpdateProfileAsync(Guid userId, UpdateUserProfileDto request);
+    Task<bool> UpdateProfileAsync(Guid userId, UpdateUserProfileRequest request);
 }

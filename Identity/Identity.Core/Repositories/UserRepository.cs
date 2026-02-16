@@ -8,13 +8,21 @@ public sealed class UserRepository(NpgsqlDataSource dataSource) : IUserRepositor
     public async Task<Guid> CreateUserAsync(User user)
     {
         await using var connection = await dataSource.OpenConnectionAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
 
+        var userId = await CreateUserAsync(user, connection, transaction);
+        await transaction.CommitAsync();
+        return userId;
+    }
+
+    public async Task<Guid> CreateUserAsync(User user, NpgsqlConnection connection, NpgsqlTransaction transaction)
+    {
         const string query = """
             INSERT INTO users (id, name, created_at_utc)
             VALUES (@Id, @Name, @CreatedAtUtc)
             """;
 
-        await connection.ExecuteAsync(query, user);
+        await connection.ExecuteAsync(query, user, transaction);
         return user.Id;
     }
 
@@ -34,7 +42,7 @@ public sealed class UserRepository(NpgsqlDataSource dataSource) : IUserRepositor
         });
     }
 
-    public async Task<bool> UpdateUserAsync(Guid userId, string name)
+    public async Task<bool> UpdateUserAsync(Guid userId, string name, DateTimeOffset updatedAtUtc)
     {
         await using var connection = await dataSource.OpenConnectionAsync();
 
@@ -48,7 +56,7 @@ public sealed class UserRepository(NpgsqlDataSource dataSource) : IUserRepositor
         {
             UserId = userId,
             Name = name,
-            UpdatedAtUtc = DateTimeOffset.UtcNow,
+            UpdatedAtUtc = updatedAtUtc,
         });
 
         return affected > 0;

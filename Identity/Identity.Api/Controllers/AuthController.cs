@@ -1,6 +1,7 @@
 using FluentValidation;
-using Identity.Core.DTOs.Auth;
+using Identity.Api.DTOs.Auth;
 using Identity.Core.Services;
+using Identity.Core.Services.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Identity.Api.Controllers;
@@ -19,7 +20,8 @@ public sealed class AuthController(
     {
         await validator.ValidateAndThrowAsync(request, cancellationToken: HttpContext.RequestAborted);
 
-        var userId = await identityService.RegisterAsync(request);
+        var userId = await identityService.RegisterAsync(
+            new RegisterUserRequest(request.Email, request.Name, request.Password));
 
         return userId is null
             ? BadRequest(new
@@ -41,8 +43,10 @@ public sealed class AuthController(
     {
         await validator.ValidateAndThrowAsync(request, cancellationToken: HttpContext.RequestAborted);
 
-        var result = await identityService.LoginAsync(request);
-        return result is null ? Unauthorized() : Ok(result);
+        var result = await identityService.LoginAsync(new LoginUserRequest(request.Email, request.Password));
+        return result is null
+            ? Unauthorized()
+            : Ok(new AccessTokensDto(result.AccessToken, result.RefreshToken));
     }
 
     [HttpPost("refresh")]
@@ -54,7 +58,9 @@ public sealed class AuthController(
     {
         await validator.ValidateAndThrowAsync(refreshTokenDto, cancellationToken: HttpContext.RequestAborted);
 
-        var result = await identityService.RefreshTokenAsync(refreshTokenDto);
-        return result is null ? Unauthorized() : Ok(result);
+        var result = await identityService.RefreshTokenAsync(new RefreshTokenRequest(refreshTokenDto.RefreshToken));
+        return result is null
+            ? Unauthorized()
+            : Ok(new AccessTokensDto(result.AccessToken, result.RefreshToken));
     }
 }

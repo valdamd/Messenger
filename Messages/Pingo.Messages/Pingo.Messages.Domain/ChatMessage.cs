@@ -6,13 +6,13 @@ public sealed class ChatMessage
     {
     }
 
-    public Guid Id { get; private set; }
+    public Guid Id { get; private init; }
 
-    public string Content { get; private set; } = string.Empty;
+    public string Content { get; private init; } = string.Empty;
 
-    public DateTimeOffset CreatedAtUtc { get; private set; }
+    public DateTimeOffset CreatedAtUtc { get; private init; }
 
-    public DateTimeOffset? UpdatedAtUtc { get; private set; }
+    public DateTimeOffset? UpdatedAtUtc { get; private init; }
 
     public static ChatMessage Create(Guid id, string content)
     {
@@ -25,14 +25,16 @@ public sealed class ChatMessage
         };
     }
 
-    public void UpdateContent(string content)
+    public ChatMessage UpdateContent(string content)
     {
         if (Content == content)
         {
-            return;
+            return this;
         }
 
-        Content = content;
-        UpdatedAtUtc = DateTimeOffset.UtcNow;
+        return new ChatMessage
+        {
+            Id = Id, Content = content, CreatedAtUtc = CreatedAtUtc, UpdatedAtUtc = DateTimeOffset.UtcNow,
+        };
     }
 }

@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Pingo.Messeges.Infrastructure.DataBase;
+using Pingo.Messages.Infrastructure.DataBase;
+
 
 namespace Pingo.Messages.ComponentTests.Abstractions;
 

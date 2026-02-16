@@ -1,4 +1,4 @@
-using Identity.Core.DTOs.Common;
+using Identity.Api.DTOs.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -14,7 +14,7 @@ public sealed class LinkService
         _urlHelper = urlHelperFactory.GetUrlHelper(actionContextAccessor.ActionContext!);
     }
 
-    public List<LinkDto> GenerateUserLinks(Guid userId)
+    public IReadOnlyList<LinkDto> GenerateUserLinks(Guid userId)
     {
         return
         [
@@ -37,49 +37,5 @@ public sealed class LinkService
                 Method = "PUT",
             },
         ];
-    }
-
-    public List<LinkDto> GeneratePaginationLinks(string routeName, int page, int pageSize, int totalPages)
-    {
-        var links = new List<LinkDto>
-        {
-            new LinkDto
-            {
-                Href = _urlHelper.Link(routeName, new
-                    {
-                        page, pageSize,
-                    }) ?? string.Empty,
-                Rel = "self",
-                Method = "GET",
-            },
-        };
-
-        if (page > 1)
-        {
-            links.Add(new LinkDto
-            {
-                Href = _urlHelper.Link(routeName, new
-                {
-                    page = page - 1, pageSize,
-                }) ?? string.Empty,
-                Rel = "previous_page",
-                Method = "GET",
-            });
-        }
-
-        if (page < totalPages)
-        {
-            links.Add(new LinkDto
-            {
-                Href = _urlHelper.Link(routeName, new
-                {
-                    page = page + 1, pageSize,
-                }) ?? string.Empty,
-                Rel = "next_page",
-                Method = "GET",
-            });
-        }
-
-        return links;
     }
 }

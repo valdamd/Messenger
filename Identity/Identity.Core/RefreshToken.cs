@@ -6,12 +6,13 @@ public sealed class RefreshToken
 
     public Guid UserId { get; init; }
 
-    public string Token { get; init; } = string.Empty;
+    public string? Token { get; init; }
+
+    public string? TokenHash { get; init; }
 
     public DateTimeOffset ExpiresAtUtc { get; init; }
 
-    public DateTimeOffset CreatedAtUtc { get; set; }
+    public DateTimeOffset CreatedAtUtc { get; init; }
 
-    public bool IsRevoked { get; set; }
-
+    public bool IsRevoked { get; init; }
 }

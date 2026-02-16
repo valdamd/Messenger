@@ -4,7 +4,7 @@ using Pingo.Messages.UnitTests.Abstractions;
 
 namespace Pingo.Messages.UnitTests.Messages;
 
-public class ChatMessageTests : BaseTest
+public sealed class ChatMessageTests : BaseTest
 {
     [Fact]
     public void Create_ShouldReturnMessage()

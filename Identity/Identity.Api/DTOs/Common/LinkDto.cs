@@ -1,4 +1,4 @@
-namespace Identity.Core.DTOs.Common;
+namespace Identity.Api.DTOs.Common;
 
 public sealed class LinkDto
 {

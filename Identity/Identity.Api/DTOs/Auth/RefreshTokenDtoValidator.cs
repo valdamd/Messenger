@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Identity.Core.DTOs.Auth;
+namespace Identity.Api.DTOs.Auth;
 
 public sealed class RefreshTokenDtoValidator : AbstractValidator<RefreshTokenDto>
 {

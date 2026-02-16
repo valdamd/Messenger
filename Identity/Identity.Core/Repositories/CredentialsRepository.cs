@@ -8,13 +8,20 @@ public sealed class CredentialsRepository(NpgsqlDataSource dataSource) : ICreden
     public async Task AddAsync(PasswordCredentials credentials)
     {
         await using var connection = await dataSource.OpenConnectionAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
 
+        await AddAsync(credentials, connection, transaction);
+        await transaction.CommitAsync();
+    }
+
+    public async Task AddAsync(PasswordCredentials credentials, NpgsqlConnection connection, NpgsqlTransaction transaction)
+    {
         const string query = """
             INSERT INTO user_credentials (user_id, email, password_hash, salt, created_at_utc)
             VALUES (@UserId, @Email, @PasswordHash, @Salt, @CreatedAtUtc)
             """;
 
-        await connection.ExecuteAsync(query, credentials);
+        await connection.ExecuteAsync(query, credentials, transaction);
     }
 
     public async Task<PasswordCredentials?> GetByEmailAsync(string email)

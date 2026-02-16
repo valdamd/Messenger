@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Pingo.Messages.Infrastructure;
-using Pingo.Messeges.Infrastructure.DataBase;
+using Pingo.Messages.Infrastructure.DataBase;
+
 
 var builder = WebApplication.CreateBuilder(args);
 

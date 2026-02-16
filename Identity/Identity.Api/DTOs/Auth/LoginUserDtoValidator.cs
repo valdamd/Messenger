@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace Identity.Core.DTOs.Auth;
+namespace Identity.Api.DTOs.Auth;
 
 public sealed class LoginUserDtoValidator : AbstractValidator<LoginUserDto>
 {
@@ -13,7 +13,6 @@ public sealed class LoginUserDtoValidator : AbstractValidator<LoginUserDto>
 
         RuleFor(x => x.Password)
             .NotEmpty()
-            .MinimumLength(6)
-            .MaximumLength(100);
+            .MaximumLength(128);
     }
 }
