@@ -1,6 +1,7 @@
 using System.Text;
 using FluentValidation;
 using Identity.Api.DTOs.Auth;
+using Identity.Api.Middleware;
 using Identity.Api.Services;
 using Identity.Core.Clock;
 using Identity.Core.Database;
@@ -8,7 +9,6 @@ using Identity.Core.Repositories;
 using Identity.Core.Security;
 using Identity.Core.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 
@@ -22,7 +22,7 @@ public static class DependencyInjection
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
-        builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+        builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<LinkService>();
 
         return builder;
@@ -78,6 +78,23 @@ public static class DependencyInjection
             });
 
         builder.Services.AddAuthorization();
+
+        return builder;
+    }
+
+    public static WebApplicationBuilder AddErrorHandling(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddProblemDetails(options =>
+        {
+            options.CustomizeProblemDetails = context =>
+            {
+                context.ProblemDetails.Extensions
+                    .TryAdd("requestId", context.HttpContext.TraceIdentifier);
+            };
+        });
+
+        builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
         return builder;
     }

@@ -1,16 +1,17 @@
+using CSharpFunctionalExtensions;
 using Identity.Core.Services.Models;
 
 namespace Identity.Core.Services;
 
 public interface IIdentityService
 {
-    Task<Guid?> RegisterAsync(RegisterUserRequest request);
+    Task<Result<Guid, IdentityError>> RegisterAsync(RegisterUserRequest request);
 
-    Task<AccessTokens?> LoginAsync(LoginUserRequest request);
+    Task<Result<AccessTokens, IdentityError>> LoginAsync(LoginUserRequest request);
 
-    Task<AccessTokens?> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest);
+    Task<Result<AccessTokens, IdentityError>> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest);
 
-    Task<UserProfile?> GetUserAsync(Guid id);
+    Task<Result<UserProfile, IdentityError>> GetUserAsync(Guid id);
 
-    Task<bool> UpdateProfileAsync(Guid userId, UpdateUserProfileRequest request);
+    Task<UnitResult<IdentityError>> UpdateProfileAsync(Guid userId, UpdateUserProfileRequest request);
 }

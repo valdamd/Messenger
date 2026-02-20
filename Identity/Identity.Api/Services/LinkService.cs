@@ -1,41 +1,17 @@
 using Identity.Api.DTOs.Common;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Routing;
 
 namespace Identity.Api.Services;
 
-public sealed class LinkService
+public sealed class LinkService(LinkGenerator linkGenerator, IHttpContextAccessor httpContextAccessor)
 {
-    private readonly IUrlHelper _urlHelper;
-
-    public LinkService(IUrlHelperFactory urlHelperFactory, IActionContextAccessor actionContextAccessor)
+    public LinkDto Create(string routeName, string rel, string method, object? values = null) => new()
     {
-        _urlHelper = urlHelperFactory.GetUrlHelper(actionContextAccessor.ActionContext!);
-    }
-
-    public IReadOnlyList<LinkDto> GenerateUserLinks(Guid userId)
-    {
-        return
-        [
-            new LinkDto
-            {
-                Href = _urlHelper.Link("GetUserById", new
-                    {
-                        id = userId,
-                    }) ?? string.Empty,
-                Rel = "self",
-                Method = "GET",
-            },
-            new LinkDto
-            {
-                Href = _urlHelper.Link("UpdateUser", new
-                    {
-                        id = userId,
-                    }) ?? string.Empty,
-                Rel = "update_user",
-                Method = "PUT",
-            },
-        ];
-    }
+        Href = linkGenerator.GetUriByRouteValues(
+            httpContextAccessor.HttpContext!,
+            routeName,
+            values) ?? string.Empty,
+        Rel = rel,
+        Method = method,
+    };
 }

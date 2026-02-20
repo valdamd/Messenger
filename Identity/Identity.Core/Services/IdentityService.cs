@@ -1,3 +1,4 @@
+using CSharpFunctionalExtensions;
 using Identity.Core.Clock;
 using Identity.Core.Repositories;
 using Identity.Core.Security;
@@ -17,7 +18,7 @@ public sealed class IdentityService(
     ITokenProvider tokenProvider,
     ILogger<IdentityService> logger) : IIdentityService
 {
-    public async Task<Guid?> RegisterAsync(RegisterUserRequest request)
+    public async Task<Result<Guid, IdentityError>> RegisterAsync(RegisterUserRequest request)
     {
         var now = dateTimeProvider.UtcNow;
         var user = request.ToEntity(now);
@@ -40,13 +41,13 @@ public sealed class IdentityService(
             await credentialsRepository.AddAsync(credential, connection, transaction);
 
             await transaction.CommitAsync();
-            return user.Id;
+            return Result.Success<Guid, IdentityError>(user.Id);
         }
         catch (PostgresException ex) when (ex.SqlState == PostgresErrorCodes.UniqueViolation)
         {
             await TryRollbackAsync(transaction);
             logger.LogInformation(ex, "User registration conflict for email {Email}", request.Email);
-            return null;
+            return Result.Failure<Guid, IdentityError>(IdentityErrors.EmailAlreadyExists);
         }
         catch
         {
@@ -55,43 +56,48 @@ public sealed class IdentityService(
         }
     }
 
-    public async Task<AccessTokens?> LoginAsync(LoginUserRequest request)
+    public async Task<Result<AccessTokens, IdentityError>> LoginAsync(LoginUserRequest request)
     {
         var credential = await credentialsRepository.GetByEmailAsync(request.Email);
-
-        if (credential is null || !passwordHasher.VerifyPassword(request.Password, credential.PasswordHash, credential.Salt))
+        if (credential is null)
         {
-            return null;
+            return Result.Failure<AccessTokens, IdentityError>(IdentityErrors.UserNotFound);
+        }
+
+        if (!passwordHasher.VerifyPassword(request.Password, credential.PasswordHash, credential.Salt))
+        {
+            return Result.Failure<AccessTokens, IdentityError>(IdentityErrors.InvalidPassword);
         }
 
         var user = await userRepository.GetUserByIdAsync(credential.UserId);
         if (user is null)
         {
-            return null;
+            return Result.Failure<AccessTokens, IdentityError>(IdentityErrors.UserNotFound);
         }
 
-        return await GenerateTokensAsync(user.Id, credential.Email);
+        var tokens = await GenerateTokensAsync(user.Id, credential.Email);
+        return Result.Success<AccessTokens, IdentityError>(tokens);
     }
 
-    public async Task<AccessTokens?> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest)
+    public async Task<Result<AccessTokens, IdentityError>> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest)
     {
         var refreshTokenHash = tokenProvider.HashRefreshToken(refreshTokenRequest.RefreshToken);
         var token = await tokenRepository.GetValidRefreshTokenAsync(refreshTokenHash, refreshTokenRequest.RefreshToken);
         if (token is null)
         {
-            return null;
+            return Result.Failure<AccessTokens, IdentityError>(IdentityErrors.InvalidRefreshToken);
         }
 
         var user = await userRepository.GetUserByIdAsync(token.UserId);
         if (user is null)
         {
-            return null;
+            return Result.Failure<AccessTokens, IdentityError>(IdentityErrors.InvalidRefreshToken);
         }
 
         var email = await credentialsRepository.GetEmailByUserIdAsync(token.UserId);
         if (email is null)
         {
-            return null;
+            return Result.Failure<AccessTokens, IdentityError>(IdentityErrors.InvalidRefreshToken);
         }
 
         await using var connection = await dataSource.OpenConnectionAsync();
@@ -102,7 +108,7 @@ public sealed class IdentityService(
             await tokenRepository.RevokeTokenAsync(token.Id, connection, transaction);
             var refreshedTokens = await GenerateTokensAsync(token.UserId, email, connection, transaction);
             await transaction.CommitAsync();
-            return refreshedTokens;
+            return Result.Success<AccessTokens, IdentityError>(refreshedTokens);
         }
         catch
         {
@@ -111,26 +117,30 @@ public sealed class IdentityService(
         }
     }
 
-    public async Task<UserProfile?> GetUserAsync(Guid id)
+    public async Task<Result<UserProfile, IdentityError>> GetUserAsync(Guid id)
     {
         var user = await userRepository.GetUserByIdAsync(id);
         if (user is null)
         {
-            return null;
+            return Result.Failure<UserProfile, IdentityError>(IdentityErrors.UserNotFound);
         }
 
         var email = await credentialsRepository.GetEmailByUserIdAsync(id);
         if (email is null)
         {
-            return null;
+            return Result.Failure<UserProfile, IdentityError>(IdentityErrors.UserNotFound);
         }
 
-        return user.ToProfile(email);
+        return Result.Success<UserProfile, IdentityError>(user.ToProfile(email));
     }
 
-    public async Task<bool> UpdateProfileAsync(Guid userId, UpdateUserProfileRequest request)
+    public async Task<UnitResult<IdentityError>> UpdateProfileAsync(Guid userId, UpdateUserProfileRequest request)
     {
-        return await userRepository.UpdateUserAsync(userId, request.Name, dateTimeProvider.UtcNow);
+        var updated = await userRepository.UpdateUserAsync(userId, request.Name, dateTimeProvider.UtcNow);
+
+        return updated
+            ? UnitResult.Success<IdentityError>()
+            : UnitResult.Failure(IdentityErrors.UserNotFound);
     }
 
     private async Task<AccessTokens> GenerateTokensAsync(
