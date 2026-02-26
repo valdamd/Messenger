@@ -1,4 +1,4 @@
-using FluentValidation;
+﻿using FluentValidation;
 using Identity.Api.DTOs.Auth;
 using Identity.Core.Services;
 using Identity.Core.Services.Models;
@@ -42,7 +42,6 @@ public sealed class AuthController(
     [HttpPost("login")]
     [ProducesResponseType<AccessTokensDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<AccessTokensDto>> Login(
         [FromBody] LoginUserDto request,
         [FromServices] IValidator<LoginUserDto> validator)
@@ -53,17 +52,13 @@ public sealed class AuthController(
 
         if (result.IsFailure)
         {
-            var statusCode = result.Error == IdentityErrors.UserNotFound
-                ? StatusCodes.Status404NotFound
-                : StatusCodes.Status401Unauthorized;
-
             return Problem(
-                detail: result.Error.Detail,
-                statusCode: statusCode,
+                detail: "Invalid email or password.",
+                statusCode: StatusCodes.Status401Unauthorized,
                 extensions: new Dictionary<string, object?>
                 {
                     {
-                        "code", result.Error.Code
+                        "code", "Identity.InvalidCredentials"
                     },
                 });
         }
