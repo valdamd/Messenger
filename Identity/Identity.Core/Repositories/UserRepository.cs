@@ -1,9 +1,9 @@
-using Dapper;
+﻿using Dapper;
 using Npgsql;
 
 namespace Identity.Core.Repositories;
 
-public sealed class UserRepository(NpgsqlDataSource dataSource) : IUserRepository
+internal sealed class UserRepository(NpgsqlDataSource dataSource) : IUserRepository
 {
     public async Task<Guid> CreateUserAsync(User user)
     {

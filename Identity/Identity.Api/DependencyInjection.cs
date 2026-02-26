@@ -1,13 +1,10 @@
-using System.Text;
+﻿using System.Text;
 using FluentValidation;
 using Identity.Api.DTOs.Auth;
 using Identity.Api.Middleware;
 using Identity.Api.Services;
-using Identity.Core.Clock;
-using Identity.Core.Database;
-using Identity.Core.Repositories;
+using Identity.Core.DependencyInjection;
 using Identity.Core.Security;
-using Identity.Core.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
@@ -41,14 +38,7 @@ public static class DependencyInjection
     public static WebApplicationBuilder AddApplicationServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddValidatorsFromAssemblyContaining<RegisterUserDtoValidator>();
-
-        builder.Services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
-        builder.Services.AddSingleton<IPasswordHasher, PasswordHasher>();
-        builder.Services.AddSingleton<ITokenProvider, TokenProvider>();
-        builder.Services.AddScoped<IUserRepository, UserRepository>();
-        builder.Services.AddScoped<ICredentialsRepository, CredentialsRepository>();
-        builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-        builder.Services.AddScoped<IIdentityService, IdentityService>();
+        builder.Services.AddIdentityCoreServices();
 
         return builder;
     }
@@ -101,7 +91,7 @@ public static class DependencyInjection
 
     public static WebApplicationBuilder AddBackgroundServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddHostedService<DatabaseMigrationService>();
+        builder.Services.AddIdentityCoreBackgroundServices();
 
         return builder;
     }

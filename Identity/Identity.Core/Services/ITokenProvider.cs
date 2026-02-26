@@ -1,6 +1,6 @@
-namespace Identity.Core.Services;
+﻿namespace Identity.Core.Services;
 
-public interface ITokenProvider
+internal interface ITokenProvider
 {
     string GenerateAccessToken(Guid userId, string email);
 

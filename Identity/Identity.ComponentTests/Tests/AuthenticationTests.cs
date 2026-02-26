@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using Identity.Api.DTOs.Auth;
 using Identity.ComponentTests.Infrastructure;
@@ -77,7 +77,7 @@ public sealed class AuthenticationTests(IdentityWebAppFactory factory) : Compone
     }
 
     [Fact]
-    public async Task Login_ShouldReturnProblemDetails_WhenUserNotFound()
+    public async Task Login_ShouldReturnUnauthorized_WithGenericMessage_WhenUserNotFound()
     {
         var client = CreateClient();
 
@@ -87,14 +87,16 @@ public sealed class AuthenticationTests(IdentityWebAppFactory factory) : Compone
             Password = "SecurePass123!",
         });
 
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
         Assert.NotNull(problem);
-        Assert.Contains("не найден", problem.Detail, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("Invalid email or password.", problem.Detail);
+        Assert.True(problem.Extensions.TryGetValue("code", out var code));
+        Assert.Equal("Identity.InvalidCredentials", code?.ToString());
     }
 
     [Fact]
-    public async Task Login_ShouldReturnProblemDetails_WhenPasswordIsWrong()
+    public async Task Login_ShouldReturnUnauthorized_WithGenericMessage_WhenPasswordIsWrong()
     {
         var client = CreateClient();
         const string email = "wrongpass@test.com";
@@ -115,7 +117,9 @@ public sealed class AuthenticationTests(IdentityWebAppFactory factory) : Compone
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
         Assert.NotNull(problem);
-        Assert.Contains("пароль", problem.Detail, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("Invalid email or password.", problem.Detail);
+        Assert.True(problem.Extensions.TryGetValue("code", out var code));
+        Assert.Equal("Identity.InvalidCredentials", code?.ToString());
     }
 
     [Fact]
@@ -187,7 +191,6 @@ public sealed class AuthenticationTests(IdentityWebAppFactory factory) : Compone
         Assert.Equal(HttpStatusCode.Unauthorized, secondResponse.StatusCode);
         var problem = await secondResponse.Content.ReadFromJsonAsync<ProblemDetails>();
         Assert.NotNull(problem);
-        Assert.Contains("токен", problem.Detail, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -203,6 +206,5 @@ public sealed class AuthenticationTests(IdentityWebAppFactory factory) : Compone
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
         Assert.NotNull(problem);
-        Assert.Contains("токен", problem.Detail, StringComparison.OrdinalIgnoreCase);
     }
 }

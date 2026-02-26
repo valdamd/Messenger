@@ -1,6 +1,6 @@
-namespace Identity.Core.Database;
+﻿namespace Identity.Core.Database;
 
-public static class DatabaseMigrations
+internal static class DatabaseMigrations
 {
     public const string CreateUsersTable = """
         CREATE TABLE IF NOT EXISTS users (

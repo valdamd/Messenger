@@ -1,11 +1,11 @@
-using Dapper;
+﻿using Dapper;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 
 namespace Identity.Core.Database;
 
-public sealed class DatabaseMigrationService(
+internal sealed class DatabaseMigrationService(
     NpgsqlDataSource dataSource,
     ILogger<DatabaseMigrationService> logger) : BackgroundService
 {
@@ -14,7 +14,7 @@ public sealed class DatabaseMigrationService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("Начинаю применение миграций...");
+        logger.LogInformation("Starting database migrations");
 
         for (var attempt = 1; attempt <= MaxRetries; attempt++)
         {
@@ -27,12 +27,12 @@ public sealed class DatabaseMigrationService(
                     await connection.ExecuteAsync(migration);
                 }
 
-                logger.LogInformation("Миграции успешно применены");
+                logger.LogInformation("Database migrations completed successfully");
                 return;
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException ex) when (stoppingToken.IsCancellationRequested)
             {
-                logger.LogInformation("Применение миграций отменено");
+                logger.LogInformation(ex, "Database migrations cancelled");
                 return;
             }
             catch (NpgsqlException ex) when (attempt < MaxRetries && !stoppingToken.IsCancellationRequested)
@@ -40,7 +40,7 @@ public sealed class DatabaseMigrationService(
                 var delay = TimeSpan.FromSeconds(InitialDelaySeconds * attempt);
                 logger.LogWarning(
                     ex,
-                    "Попытка подключения к БД {Attempt}/{MaxRetries} не удалась. Повтор через {DelaySeconds} сек.",
+                    "Database connection attempt {Attempt}/{MaxRetries} failed. Retrying in {DelaySeconds} seconds.",
                     attempt,
                     MaxRetries,
                     delay.TotalSeconds);
@@ -49,19 +49,19 @@ public sealed class DatabaseMigrationService(
                 {
                     await Task.Delay(delay, stoppingToken);
                 }
-                catch (OperationCanceledException)
+                catch (OperationCanceledException ex2)
                 {
-                    logger.LogInformation("Применение миграций отменено");
+                    logger.LogInformation(ex2, "Database migrations cancelled");
                 }
             }
             catch (Exception ex) when (!stoppingToken.IsCancellationRequested)
             {
-                logger.LogError(ex, "Ошибка при применении миграций");
+                logger.LogError(ex, "Database migration failed");
                 throw;
             }
         }
 
-        logger.LogError("Не удалось подключиться к базе данных после {MaxRetries} попыток", MaxRetries);
+        logger.LogError("Failed to connect to database after {MaxRetries} attempts", MaxRetries);
         throw new InvalidOperationException($"Failed to connect to database after {MaxRetries} attempts");
     }
 }

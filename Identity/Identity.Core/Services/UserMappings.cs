@@ -1,8 +1,8 @@
-using Identity.Core.Services.Models;
+﻿using Identity.Core.Services.Models;
 
 namespace Identity.Core.Services;
 
-public static class UserMappings
+internal static class UserMappings
 {
     public static User ToEntity(this RegisterUserRequest request, DateTimeOffset createdAtUtc)
     {

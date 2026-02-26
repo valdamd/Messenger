@@ -1,9 +1,9 @@
-using Dapper;
+﻿using Dapper;
 using Npgsql;
 
 namespace Identity.Core.Repositories;
 
-public sealed class CredentialsRepository(NpgsqlDataSource dataSource) : ICredentialsRepository
+internal sealed class CredentialsRepository(NpgsqlDataSource dataSource) : ICredentialsRepository
 {
     public async Task AddAsync(PasswordCredentials credentials)
     {

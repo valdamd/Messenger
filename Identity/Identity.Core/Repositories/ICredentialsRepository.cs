@@ -1,8 +1,8 @@
-using Npgsql;
+﻿using Npgsql;
 
 namespace Identity.Core.Repositories;
 
-public interface ICredentialsRepository
+internal interface ICredentialsRepository
 {
     Task AddAsync(PasswordCredentials credentials);
 

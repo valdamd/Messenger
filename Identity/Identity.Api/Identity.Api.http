@@ -1,7 +1,7 @@
-@Identity.Api_HostAddress = http://localhost:5000
+﻿@Identity.Api_HostAddress = http://localhost:5000
 @Email = test@example.com
 @Password = Password123!
-@Name = UseName
+@Name = UserName
 
 ### 1. Register User
 POST {{Identity.Api_HostAddress}}/api/auth/register
@@ -36,8 +36,10 @@ GET {{Identity.Api_HostAddress}}/api/users/{{UserId}}
 Authorization: Bearer {{AccessToken}}
 Accept: application/json
 
-### 4. Refresh Token
-POST {{Identity.Api_HostAddress}}/api/auth/refresh
+### 4. Refresh Tokens
+POST {{Identity.Api_HostAddress}}/api/auth/refresh-tokens
 Content-Type: application/json
 
-"{{RefreshToken}}"
+{
+  "refreshToken": "{{RefreshToken}}"
+}

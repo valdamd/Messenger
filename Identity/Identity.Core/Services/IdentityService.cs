@@ -1,5 +1,4 @@
-using CSharpFunctionalExtensions;
-using Identity.Core.Clock;
+﻿using CSharpFunctionalExtensions;
 using Identity.Core.Repositories;
 using Identity.Core.Security;
 using Identity.Core.Services.Models;
@@ -8,19 +7,19 @@ using Npgsql;
 
 namespace Identity.Core.Services;
 
-public sealed class IdentityService(
+internal sealed class IdentityService(
     NpgsqlDataSource dataSource,
     IUserRepository userRepository,
     ICredentialsRepository credentialsRepository,
     IRefreshTokenRepository tokenRepository,
     IPasswordHasher passwordHasher,
-    IDateTimeProvider dateTimeProvider,
+    TimeProvider timeProvider,
     ITokenProvider tokenProvider,
     ILogger<IdentityService> logger) : IIdentityService
 {
     public async Task<Result<Guid, IdentityError>> RegisterAsync(RegisterUserRequest request)
     {
-        var now = dateTimeProvider.UtcNow;
+        var now = timeProvider.GetUtcNow();
         var user = request.ToEntity(now);
         var (hash, salt) = passwordHasher.HashPassword(request.Password);
         var credential = new PasswordCredentials
@@ -82,31 +81,39 @@ public sealed class IdentityService(
     public async Task<Result<AccessTokens, IdentityError>> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest)
     {
         var refreshTokenHash = tokenProvider.HashRefreshToken(refreshTokenRequest.RefreshToken);
-        var token = await tokenRepository.GetValidRefreshTokenAsync(refreshTokenHash, refreshTokenRequest.RefreshToken);
-        if (token is null)
-        {
-            return Result.Failure<AccessTokens, IdentityError>(IdentityErrors.InvalidRefreshToken);
-        }
-
-        var user = await userRepository.GetUserByIdAsync(token.UserId);
-        if (user is null)
-        {
-            return Result.Failure<AccessTokens, IdentityError>(IdentityErrors.InvalidRefreshToken);
-        }
-
-        var email = await credentialsRepository.GetEmailByUserIdAsync(token.UserId);
-        if (email is null)
-        {
-            return Result.Failure<AccessTokens, IdentityError>(IdentityErrors.InvalidRefreshToken);
-        }
 
         await using var connection = await dataSource.OpenConnectionAsync();
         await using var transaction = await connection.BeginTransactionAsync();
 
         try
         {
-            await tokenRepository.RevokeTokenAsync(token.Id, connection, transaction);
-            var refreshedTokens = await GenerateTokensAsync(token.UserId, email, connection, transaction);
+            var consumedToken = await tokenRepository.ConsumeValidRefreshTokenAsync(
+                refreshTokenHash,
+                refreshTokenRequest.RefreshToken,
+                connection,
+                transaction);
+
+            if (consumedToken is null)
+            {
+                await transaction.CommitAsync();
+                return Result.Failure<AccessTokens, IdentityError>(IdentityErrors.InvalidRefreshToken);
+            }
+
+            var user = await userRepository.GetUserByIdAsync(consumedToken.UserId);
+            if (user is null)
+            {
+                await TryRollbackAsync(transaction);
+                return Result.Failure<AccessTokens, IdentityError>(IdentityErrors.InvalidRefreshToken);
+            }
+
+            var email = await credentialsRepository.GetEmailByUserIdAsync(consumedToken.UserId);
+            if (email is null)
+            {
+                await TryRollbackAsync(transaction);
+                return Result.Failure<AccessTokens, IdentityError>(IdentityErrors.InvalidRefreshToken);
+            }
+
+            var refreshedTokens = await GenerateTokensAsync(consumedToken.UserId, email, connection, transaction);
             await transaction.CommitAsync();
             return Result.Success<AccessTokens, IdentityError>(refreshedTokens);
         }
@@ -136,7 +143,7 @@ public sealed class IdentityService(
 
     public async Task<UnitResult<IdentityError>> UpdateProfileAsync(Guid userId, UpdateUserProfileRequest request)
     {
-        var updated = await userRepository.UpdateUserAsync(userId, request.Name, dateTimeProvider.UtcNow);
+        var updated = await userRepository.UpdateUserAsync(userId, request.Name, timeProvider.GetUtcNow());
 
         return updated
             ? UnitResult.Success<IdentityError>()
@@ -160,7 +167,7 @@ public sealed class IdentityService(
             Token = null,
             TokenHash = tokenProvider.HashRefreshToken(refreshToken),
             ExpiresAtUtc = expiresAt,
-            CreatedAtUtc = dateTimeProvider.UtcNow,
+            CreatedAtUtc = timeProvider.GetUtcNow(),
             IsRevoked = false,
         };
 
@@ -176,15 +183,15 @@ public sealed class IdentityService(
         return new AccessTokens(accessToken, refreshToken);
     }
 
-    private static async Task TryRollbackAsync(NpgsqlTransaction transaction)
+    private async Task TryRollbackAsync(NpgsqlTransaction transaction)
     {
         try
         {
             await transaction.RollbackAsync();
         }
-        catch
+        catch (Exception ex)
         {
-            // Ignore rollback failures to preserve original exception.
+            logger.LogWarning(ex, "Rollback failed");
         }
     }
 }

@@ -1,17 +1,16 @@
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Identity.Core.Clock;
 using Identity.Core.Security;
 using Microsoft.IdentityModel.Tokens;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace Identity.Core.Services;
 
-public sealed class TokenProvider(
+internal sealed class TokenProvider(
     JwtAuthOptions options,
-    IDateTimeProvider dateTimeProvider) : ITokenProvider
+    TimeProvider timeProvider) : ITokenProvider
 {
     private readonly SymmetricSecurityKey _key = new(Encoding.UTF8.GetBytes(options.Key));
 
@@ -30,7 +29,7 @@ public sealed class TokenProvider(
             issuer: options.Issuer,
             audience: options.Audience,
             claims: claims,
-            expires: dateTimeProvider.UtcNow.UtcDateTime.AddMinutes(options.DurationInMinutes),
+            expires: timeProvider.GetUtcNow().UtcDateTime.AddMinutes(options.DurationInMinutes),
             signingCredentials: credentials);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
@@ -51,6 +50,6 @@ public sealed class TokenProvider(
 
     public DateTimeOffset GetRefreshTokenExpiration()
     {
-        return dateTimeProvider.UtcNow.AddDays(options.RefreshTokenExpirationDays);
+        return timeProvider.GetUtcNow().AddDays(options.RefreshTokenExpirationDays);
     }
 }

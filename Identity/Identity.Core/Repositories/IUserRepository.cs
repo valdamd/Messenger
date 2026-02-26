@@ -1,8 +1,8 @@
-using Npgsql;
+﻿using Npgsql;
 
 namespace Identity.Core.Repositories;
 
-public interface IUserRepository
+internal interface IUserRepository
 {
     Task<Guid> CreateUserAsync(User user);
 
