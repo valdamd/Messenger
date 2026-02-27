@@ -2,7 +2,7 @@
 
 namespace Identity.Core.Repositories;
 
-internal interface ICredentialsRepository
+public interface ICredentialsRepository
 {
     Task AddAsync(PasswordCredentials credentials);
 
