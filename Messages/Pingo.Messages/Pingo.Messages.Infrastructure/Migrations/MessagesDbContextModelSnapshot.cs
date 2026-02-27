@@ -35,11 +35,11 @@ namespace Pingo.Messages.Infrastructure.Migrations
                         .HasColumnType("character varying(2000)")
                         .HasColumnName("content");
 
-                    b.Property<DateTime>("CreatedAtUtc")
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc");
 
-                    b.Property<DateTime?>("UpdatedAtUtc")
+                    b.Property<DateTimeOffset?>("UpdatedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at_utc");
 

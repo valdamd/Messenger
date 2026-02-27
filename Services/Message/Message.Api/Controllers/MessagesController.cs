@@ -1,9 +1,11 @@
-using Message.Message.Api;
+﻿using Message.Message.Api;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pingo.Messages.Application;
 
 namespace Message.Api.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class MessagesController(IMessageService messageService) : ControllerBase

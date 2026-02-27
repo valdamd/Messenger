@@ -1,0 +1,70 @@
+﻿@page "/login"
+@using Messenger.Client.Auth
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<PageTitle>Login</PageTitle>
+
+<div class="auth-page">
+    <div class="auth-backdrop"></div>
+    <MudPaper Elevation="8" Class="auth-card">
+        <MudText Typo="Typo.h4" Class="auth-title">Messenger Access</MudText>
+        <MudText Typo="Typo.body2" Class="auth-subtitle">Sign in with your Identity account</MudText>
+
+        <MudTextField @bind-Value="email"
+                      Label="Email"
+                      Placeholder="you@example.com"
+                      Variant="Variant.Outlined"
+                      FullWidth="true"
+                      Class="mb-3" />
+
+        <MudTextField @bind-Value="password"
+                      Label="Password"
+                      InputType="InputType.Password"
+                      Variant="Variant.Outlined"
+                      FullWidth="true"
+                      Class="mb-4" />
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   FullWidth="true"
+                   Size="Size.Large"
+                   Disabled="isLoading"
+                   OnClick="LoginAsync">
+            @(isLoading ? "Signing in..." : "Login")
+        </MudButton>
+    </MudPaper>
+</div>
+
+@code {
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private bool isLoading;
+
+    private async Task LoginAsync()
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        {
+            Snackbar.Add("Email and password are required.", Severity.Warning);
+            return;
+        }
+
+        isLoading = true;
+        try
+        {
+            var success = await AuthService.LoginAsync(email, password);
+            if (!success)
+            {
+                Snackbar.Add("Invalid credentials.", Severity.Error);
+                return;
+            }
+
+            Navigation.NavigateTo("/chat", forceLoad: false);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

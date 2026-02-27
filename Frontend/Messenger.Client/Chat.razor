@@ -1,14 +1,20 @@
-﻿@page "/"
+﻿@page "/chat"
 @using MudBlazor
 @using System.Linq
+@using Messenger.Client.Auth
 @inject IMessageService MessageService
+@inject IAuthService AuthService
+@inject NavigationManager Navigation
 @inject ISnackbar Snackbar
 
 <PageTitle>Chat</PageTitle>
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
     <MudPaper Elevation="3" Class="pa-4">
-        <MudText Typo="Typo.h4" Class="mb-4">Anonymous Chat</MudText>
+        <MudStack Row="true" Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+            <MudText Typo="Typo.h4">Anonymous Chat</MudText>
+            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="LogoutAsync">Logout</MudButton>
+        </MudStack>
 
         <MudDivider Class="mb-4" />
 
@@ -59,6 +65,13 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var authenticated = await AuthService.IsAuthenticatedAsync();
+        if (!authenticated)
+        {
+            Navigation.NavigateTo("/login", forceLoad: false);
+            return;
+        }
+
         await LoadMessages();
     }
 
@@ -77,7 +90,9 @@
     private async Task SendMessage()
     {
         if (string.IsNullOrWhiteSpace(newMessage))
+        {
             return;
+        }
 
         try
         {
@@ -90,6 +105,12 @@
         {
             Snackbar.Add($"Failed to send message: {ex.Message}", Severity.Error);
         }
+    }
+
+    private async Task LogoutAsync()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/login", forceLoad: false);
     }
 
     private async Task HandleKeyDown(KeyboardEventArgs e)

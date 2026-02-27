@@ -24,7 +24,6 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddIdentityCoreBackgroundServices(this IServiceCollection services)
     {
         services.AddHostedService<DatabaseMigrationService>();
-        services.AddHostedService<ExpiredRefreshTokenCleanupService>();
 
         return services;
     }

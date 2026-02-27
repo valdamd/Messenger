@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using Messenger.Client.Auth;
 
 namespace Messenger.Client;
 

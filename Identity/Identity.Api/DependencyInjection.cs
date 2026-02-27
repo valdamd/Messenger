@@ -22,6 +22,17 @@ public static class DependencyInjection
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<LinkService>();
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(policy =>
+            {
+                policy
+                    .WithOrigins("http://localhost:7000", "http://localhost:5173")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+
         return builder;
     }
 
