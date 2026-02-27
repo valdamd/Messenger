@@ -1,6 +1,6 @@
 ﻿namespace Identity.Core.Security;
 
-internal interface IPasswordHasher
+public interface IPasswordHasher
 {
     (string Hash, string Salt) HashPassword(string password);
 

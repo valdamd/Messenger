@@ -2,7 +2,7 @@
 
 namespace Identity.Core.Repositories;
 
-internal interface IUserRepository
+interface IUserRepository
 {
     Task<Guid> CreateUserAsync(User user);
 

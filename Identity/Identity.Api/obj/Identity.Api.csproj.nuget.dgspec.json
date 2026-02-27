@@ -62,6 +62,14 @@
               "target": "Package",
               "version": "[12.1.1, )"
             },
+            "Hangfire.AspNetCore": {
+              "target": "Package",
+              "version": "[1.8.18, )"
+            },
+            "Hangfire.Redis.StackExchange": {
+              "target": "Package",
+              "version": "[1.12.0, )"
+            },
             "MediatR": {
               "target": "Package",
               "version": "[14.0.0, )"

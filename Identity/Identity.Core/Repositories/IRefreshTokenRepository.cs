@@ -2,7 +2,7 @@
 
 namespace Identity.Core.Repositories;
 
-internal interface IRefreshTokenRepository
+public interface IRefreshTokenRepository
 {
     Task<Guid> CreateRefreshTokenAsync(RefreshToken token);
 
