@@ -62,6 +62,10 @@
 
             Navigation.NavigateTo("/chat", forceLoad: false);
         }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Connection error: {ex.Message}", Severity.Error);
+        }
         finally
         {
             isLoading = false;

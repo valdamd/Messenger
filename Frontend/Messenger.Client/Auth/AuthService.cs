@@ -14,6 +14,8 @@ public sealed class AuthService(HttpClient identityHttpClient, ITokenStore token
 
         if (!response.IsSuccessStatusCode)
         {
+            var errorBody = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[AuthService] Login failed: {response.StatusCode} - {errorBody}");
             return false;
         }
 
