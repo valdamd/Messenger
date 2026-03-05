@@ -1,5 +1,6 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Identity.Api.DTOs.Auth;
+using Identity.Api.Extensions;
 using Identity.Core.Services;
 using Identity.Core.Services.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -25,15 +26,7 @@ public sealed class AuthController(
 
         if (result.IsFailure)
         {
-            return Problem(
-                detail: result.Error.Detail,
-                statusCode: StatusCodes.Status400BadRequest,
-                extensions: new Dictionary<string, object?>
-                {
-                    {
-                        "code", result.Error.Code
-                    },
-                });
+            return result.Error.ToProblemResult(StatusCodes.Status400BadRequest);
         }
 
         return Ok(new RegisterResponseDto(result.Value));
@@ -52,15 +45,8 @@ public sealed class AuthController(
 
         if (result.IsFailure)
         {
-            return Problem(
-                detail: "Invalid email or password.",
-                statusCode: StatusCodes.Status401Unauthorized,
-                extensions: new Dictionary<string, object?>
-                {
-                    {
-                        "code", "Identity.InvalidCredentials"
-                    },
-                });
+            return new IdentityError("Identity.InvalidCredentials", "Invalid email or password.")
+                .ToProblemResult(StatusCodes.Status401Unauthorized);
         }
 
         return Ok(new AccessTokensDto(result.Value.AccessToken, result.Value.RefreshToken));
@@ -79,15 +65,7 @@ public sealed class AuthController(
 
         if (result.IsFailure)
         {
-            return Problem(
-                detail: result.Error.Detail,
-                statusCode: StatusCodes.Status401Unauthorized,
-                extensions: new Dictionary<string, object?>
-                {
-                    {
-                        "code", result.Error.Code
-                    },
-                });
+            return result.Error.ToProblemResult(StatusCodes.Status401Unauthorized);
         }
 
         return Ok(new AccessTokensDto(result.Value.AccessToken, result.Value.RefreshToken));

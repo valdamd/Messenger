@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Pingo.Messages.Infrastructure.DataBase;
 
-
 namespace Message.Api.Extensions;
 
 internal static class MigrationExtensions

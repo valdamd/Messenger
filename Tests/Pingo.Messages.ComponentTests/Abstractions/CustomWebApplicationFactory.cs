@@ -1,10 +1,10 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Pingo.Messages.Infrastructure.DataBase;
-
 
 namespace Pingo.Messages.ComponentTests.Abstractions;
 
@@ -32,6 +32,10 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
             }
 
             services.AddDbContext<MessagesDbContext>(options => options.UseInMemoryDatabase(_databaseName));
+
+            services.AddAuthentication(FakeAuthenticationHandler.SchemeName)
+                .AddScheme<AuthenticationSchemeOptions, FakeAuthenticationHandler>(
+                    FakeAuthenticationHandler.SchemeName, _ => { });
         });
     }
 

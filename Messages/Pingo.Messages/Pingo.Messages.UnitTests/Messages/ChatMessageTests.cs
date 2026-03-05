@@ -66,8 +66,9 @@ public sealed class ChatMessageTests : BaseTest
     [Fact]
     public void UpdateContent_ShouldUpdateContent()
     {
-        var message = ChatMessage.Create(Guid.NewGuid(), Faker.Lorem.Sentence());
-        var newContent = Faker.Lorem.Paragraph();
+        const string originalContent = "original content";
+        var message = ChatMessage.Create(Guid.NewGuid(), originalContent);
+        const string newContent = "updated content";
 
         message.UpdateContent(newContent);
 
@@ -77,10 +78,10 @@ public sealed class ChatMessageTests : BaseTest
     [Fact]
     public void UpdateContent_ShouldSetUpdatedAtUtc()
     {
-        var message = ChatMessage.Create(Guid.NewGuid(), Faker.Lorem.Sentence());
+        var message = ChatMessage.Create(Guid.NewGuid(), "original content");
         var beforeUpdate = DateTimeOffset.UtcNow;
 
-        message.UpdateContent(Faker.Lorem.Paragraph());
+        message.UpdateContent("updated content");
 
         message.UpdatedAtUtc.Should().NotBeNull();
         message.UpdatedAtUtc.Should().BeOnOrAfter(beforeUpdate);

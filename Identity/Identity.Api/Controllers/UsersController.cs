@@ -1,7 +1,7 @@
-using System.Security.Claims;
 using FluentValidation;
 using Identity.Api.DTOs.Common;
 using Identity.Api.DTOs.Users;
+using Identity.Api.Extensions;
 using Identity.Api.Services;
 using Identity.Core.Services;
 using Identity.Core.Services.Models;
@@ -26,7 +26,7 @@ public sealed class UsersController(
         Guid id,
         [FromHeader] AcceptHeaderDto acceptHeaderDto)
     {
-        var currentUserId = GetCurrentUserId();
+        var currentUserId = User.GetUserId();
         if (currentUserId is null || currentUserId.Value != id)
         {
             return Forbid();
@@ -35,20 +35,12 @@ public sealed class UsersController(
         var result = await identityService.GetUserAsync(id);
         if (result.IsFailure)
         {
-            return Problem(
-                detail: result.Error.Detail,
-                statusCode: StatusCodes.Status404NotFound,
-                extensions: new Dictionary<string, object?>
-                {
-                    {
-                        "code", result.Error.Code
-                    },
-                });
+            return result.Error.ToProblemResult(StatusCodes.Status404NotFound);
         }
 
         var links = acceptHeaderDto.IncludeLinks ? CreateLinksForUser(result.Value.Id) : [];
 
-        return Ok(MapToDto(result.Value, links));
+        return Ok(UserDto.FromProfile(result.Value, links));
     }
 
     [HttpGet("me", Name = nameof(GetCurrentUser))]
@@ -57,7 +49,7 @@ public sealed class UsersController(
     public async Task<ActionResult<UserDto>> GetCurrentUser(
         [FromHeader] AcceptHeaderDto acceptHeaderDto)
     {
-        var userId = GetCurrentUserId();
+        var userId = User.GetUserId();
         if (userId is null)
         {
             return Unauthorized();
@@ -66,20 +58,12 @@ public sealed class UsersController(
         var result = await identityService.GetUserAsync(userId.Value);
         if (result.IsFailure)
         {
-            return Problem(
-                detail: result.Error.Detail,
-                statusCode: StatusCodes.Status404NotFound,
-                extensions: new Dictionary<string, object?>
-                {
-                    {
-                        "code", result.Error.Code
-                    },
-                });
+            return result.Error.ToProblemResult(StatusCodes.Status404NotFound);
         }
 
         var links = acceptHeaderDto.IncludeLinks ? CreateLinksForUser(result.Value.Id) : [];
 
-        return Ok(MapToDto(result.Value, links));
+        return Ok(UserDto.FromProfile(result.Value, links));
     }
 
     [HttpPut("me/profile", Name = nameof(UpdateProfile))]
@@ -92,7 +76,7 @@ public sealed class UsersController(
     {
         await validator.ValidateAndThrowAsync(request, cancellationToken: HttpContext.RequestAborted);
 
-        var userId = GetCurrentUserId();
+        var userId = User.GetUserId();
         if (userId is null)
         {
             return Unauthorized();
@@ -101,27 +85,11 @@ public sealed class UsersController(
         var result = await identityService.UpdateProfileAsync(userId.Value, new UpdateUserProfileRequest(request.Name));
         if (result.IsFailure)
         {
-            return Problem(
-                detail: result.Error.Detail,
-                statusCode: StatusCodes.Status404NotFound,
-                extensions: new Dictionary<string, object?>
-                {
-                    {
-                        "code", result.Error.Code
-                    },
-                });
+            return result.Error.ToProblemResult(StatusCodes.Status404NotFound);
         }
 
         return NoContent();
     }
-
-    private static UserDto MapToDto(UserProfile profile, IReadOnlyList<LinkDto>? links = null) => new()
-    {
-        Id = profile.Id,
-        Email = profile.Email,
-        Name = profile.Name,
-        Links = links ?? [],
-    };
 
     private List<LinkDto> CreateLinksForUser(Guid userId) =>
     [
@@ -132,10 +100,4 @@ public sealed class UsersController(
         }),
         linkService.Create(nameof(UpdateProfile), "update-profile", HttpMethods.Put),
     ];
-
-    private Guid? GetCurrentUserId()
-    {
-        var subject = User.FindFirstValue("sub") ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
-        return Guid.TryParse(subject, out var userId) ? userId : null;
-    }
 }

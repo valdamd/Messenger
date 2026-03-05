@@ -45,7 +45,6 @@ public sealed class MessageServiceTests : BaseTest
 
         await _sut.CreateOrUpdateAsync(messageId, newContent);
 
-        _messageRepository.Received(1).Update(existingMessage);
         existingMessage.Content.Should().Be(newContent);
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }

@@ -16,7 +16,6 @@ public sealed class MessageService(IChatMessageRepository messageRepository, IUn
         else
         {
             existingMessage.UpdateContent(content);
-            messageRepository.Update(existingMessage);
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);

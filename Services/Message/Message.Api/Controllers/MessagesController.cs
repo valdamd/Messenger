@@ -8,7 +8,7 @@ namespace Message.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/[controller]")]
-public class MessagesController(IMessageService messageService) : ControllerBase
+public sealed class MessagesController(IMessageService messageService) : ControllerBase
 {
     [HttpPut("{messageId:guid}")]
     public async Task<IActionResult> CreateOrUpdate(

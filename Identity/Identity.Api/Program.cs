@@ -24,7 +24,7 @@ if (hangfireEnabled)
 
     try
     {
-        using var probe = ConnectionMultiplexer.Connect(safeConnectionString);
+        using var probe = await ConnectionMultiplexer.ConnectAsync(safeConnectionString);
         probe.GetDatabase().Ping();
 
         builder.Services.AddHangfire(configuration =>

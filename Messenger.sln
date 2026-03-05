@@ -27,6 +27,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Pingo.Messages", "Pingo.Mes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pingo.Messages.UnitTests", "Messages\Pingo.Messages\Pingo.Messages.UnitTests\Pingo.Messages.UnitTests.csproj", "{7E37DD51-C378-486D-A766-E3711C757AF7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{2FA89949-C014-61E3-9766-4043502A0423}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.ComponentTests", "Identity\Identity.ComponentTests\Identity.ComponentTests.csproj", "{A2F21ABF-1121-41DF-8721-BE48FFA5AC06}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -145,6 +149,18 @@ Global
 		{7E37DD51-C378-486D-A766-E3711C757AF7}.Release|x64.Build.0 = Release|Any CPU
 		{7E37DD51-C378-486D-A766-E3711C757AF7}.Release|x86.ActiveCfg = Release|Any CPU
 		{7E37DD51-C378-486D-A766-E3711C757AF7}.Release|x86.Build.0 = Release|Any CPU
+		{A2F21ABF-1121-41DF-8721-BE48FFA5AC06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2F21ABF-1121-41DF-8721-BE48FFA5AC06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2F21ABF-1121-41DF-8721-BE48FFA5AC06}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A2F21ABF-1121-41DF-8721-BE48FFA5AC06}.Debug|x64.Build.0 = Debug|Any CPU
+		{A2F21ABF-1121-41DF-8721-BE48FFA5AC06}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A2F21ABF-1121-41DF-8721-BE48FFA5AC06}.Debug|x86.Build.0 = Debug|Any CPU
+		{A2F21ABF-1121-41DF-8721-BE48FFA5AC06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2F21ABF-1121-41DF-8721-BE48FFA5AC06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A2F21ABF-1121-41DF-8721-BE48FFA5AC06}.Release|x64.ActiveCfg = Release|Any CPU
+		{A2F21ABF-1121-41DF-8721-BE48FFA5AC06}.Release|x64.Build.0 = Release|Any CPU
+		{A2F21ABF-1121-41DF-8721-BE48FFA5AC06}.Release|x86.ActiveCfg = Release|Any CPU
+		{A2F21ABF-1121-41DF-8721-BE48FFA5AC06}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -152,5 +168,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A89AF259-FA84-1E65-5065-02506920BFB8} = {3F1437F9-84CA-1BAF-F2AD-5C20BA7C470B}
 		{7E37DD51-C378-486D-A766-E3711C757AF7} = {A89AF259-FA84-1E65-5065-02506920BFB8}
+		{A2F21ABF-1121-41DF-8721-BE48FFA5AC06} = {2FA89949-C014-61E3-9766-4043502A0423}
 	EndGlobalSection
 EndGlobal
